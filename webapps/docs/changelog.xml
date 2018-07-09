@@ -44,7 +44,321 @@
   They eventually become mixed with the numbered issues. (I.e., numbered
   issues do not "pop up" wrt. others).
 -->
-<section name="Tomcat 9.0.8 (markt)">
+<section name="Tomcat 9.0.10 (markt)">
+  <subsection name="Catalina">
+    <changelog>
+      <fix>
+        <bug>62476</bug>: Use GMT timezone for the value of
+        <code>Expires</code> header as required by HTTP specification
+        (RFC 7231, 7234). (kkolinko)
+      </fix>
+    </changelog>
+  </subsection>
+</section>
+<section name="Tomcat 9.0.9 (markt)" rtext="not released">
+  <subsection name="Catalina">
+    <changelog>
+      <fix>
+        Treat the <code>&lt;mapped-name&gt;</code> element of a
+        <code>&lt;env-entry&gt;</code> in web.xml in the same way as the
+        <code>mappedName</code> element of the equivalent <code>@Resource</code>
+        annotation. Both now attempt to set the <code>mappedName</code> property
+        of the resource. (markt)
+      </fix>
+      <fix>
+        Correct the processing of resources with
+        <code>&lt;injection-target&gt;</code>s defined in web.xml. First look
+        for a match using JavaBean property names and then, only if a match is
+        not found, look for a match using fields. (markt)
+      </fix>
+      <fix>
+        When restoring a saved request with a request body after FORM
+        authentication, ensure that calls to the <code>HttpServletRequest</code>
+        methods <code>getRequestURI()</code>, <code>getQueryString()</code> and
+        <code>getProtocol()</code> are not corrupted by the processing of the
+        saved request body. (markt)
+      </fix>
+      <fix>
+        JNDI resources that are defined with injection targets but no value are
+        now treated as if the resource is not defined. (markt)
+      </fix>
+      <fix>
+        Ensure that JNDI names used for <code>&lt;lookup-name&gt;</code> entries
+        in web.xml and for <code>lookup</code> elements of
+        <code>@Resource</code> annotations specify a name with an explicit
+        <code>java:</code> namespace. (markt)
+      </fix>
+      <fix>
+        <bug>50019</bug>: Add support for <code>&lt;lookup-name&gt;</code>.
+        Based on a patch by Gurkan Erdogdu. (markt)
+      </fix>
+      <add>
+        Add the <code>AuthenticatedUserRealm</code> for use with CLIENT-CERT and
+        SPNEGO when just the authenticated user name is required. (markt)
+      </add>
+      <fix>
+        <bug>50175</bug>: Add a new attribute to the standard context
+        implementation, <code>skipMemoryLeakChecksOnJvmShutdown</code>, that
+        allows the user to configure Tomcat to skip the memory leak checks
+        usually performed during web application stop if that stop is triggered
+        by a JVM shutdown. (markt)
+      </fix>
+      <add>
+        <bug>51497</bug>: Add an option, <code>ipv6Canonical</code>, to the
+        <code>AccessLogValve</code> that causes IPv6 addresses to be output in
+        canonical form defined by RFC 5952. (ognjen/markt)
+      </add>
+      <add>
+        <bug>51953</bug>: Add the <code>RemoteCIDRFilter</code> and
+        <code>RemoteCIDRValve</code> that can be used to allow/deny requests
+        based on IPv4 and/or IPv6 client address where the IP ranges are defined
+        using CIDR notation. Based on a patch by Francis Galiegue. (markt)
+      </add>
+      <fix>
+        <bug>62343</bug>: Make CORS filter defaults more secure. This is the fix
+        for CVE-2018-8014. (markt)
+      </fix>
+      <fix>
+        Ensure that the web application resources implementation does not
+        incorrectly cache results for resources that are only visible as class
+        loader resources. (markt)
+      </fix>
+      <fix>
+        <bug>62387</bug>: Do not log a warning message if the file based
+        persistent session store fails to delete the file for a session when the
+        session is invalidated because the file has not been created yet.
+        (markt)
+      </fix>
+      <fix>
+        Make all loggers associated with Tomcat provided Filters non-static to
+        ensure that log messages are not lost when a web application is
+        reloaded. (markt)
+      </fix>
+      <fix>
+        Correct the manifest for the annotations-api.jar. The JAR implements the
+        Common Annotations API 1.3 and the manifest should reflect that. (markt)
+      </fix>
+      <fix>
+        Switch to non-static loggers where there is a possibility of a logger
+        becoming associated with a web application class loader causing log
+        messages to be lost if the web application is stopped. (markt)
+      </fix>
+      <add>
+        <bug>62389</bug>: Add the IPv6 loopback address to the default
+        <code>internalProxies</code> regular expression. Patch by Craig Andrews.
+        (markt)
+      </add>
+      <fix>
+        In the <code>RemoteIpValve</code> and <code>RemoteIpFilter</code>,
+        correctly handle the case when the request passes through one or more
+        <code>trustedProxies</code> but no <code>internalProxies</code>. Based
+        on a patch by zhanhb. (markt)
+      </fix>
+      <fix>
+        Correct the logic in <code>MBeanFactory.removeConnector()</code> to
+        ensure that the correct Connector is removed when there are multiple
+        Connectors using different addresses but the same port. (markt)
+      </fix>
+      <fix>
+        Make <code>JAASRealm</code> mis-configuration more obvious by requiring
+        the authenticated Subject to include at least one Principal of a type
+        specified by <code>userClassNames</code>. (markt)
+      </fix>
+    </changelog>
+  </subsection>
+  <subsection name="Coyote">
+    <changelog>
+      <fix>
+        Correct a regression in the error page handling that prevented error
+        pages from issuing redirects or taking other action that required the
+        response status code to be changed. (markt)
+      </fix>
+      <fix>
+        Consistent exception propagation for NIO2 SSL close. (remm)
+      </fix>
+      <fix>
+        Followup sync fix for NIO2 async IO blocking read/writes. (remm)
+      </fix>
+      <fix>
+        Log an error message if the AJP connector detects the the reverse proxy
+        is sending AJP messages that are too large for the configured
+        <code>packetSize</code>. (markt)
+      </fix>
+      <fix>
+        Relax Host validation by removing the requirement that the final
+        component of a FQDN must be alphabetic. (markt)
+      </fix>
+      <fix>
+        <bug>62371</bug>: Improve logging of Host validation failures. (markt)
+      </fix>
+      <fix>
+        Fix a couple of unlikely edge cases in the shutting down of the
+        APR/native connector. (markt)
+      </fix>
+      <fix>
+        Add missing handshake timeout for NIO2. (remm)
+      </fix>
+      <fix>
+        Correctly handle a digest authorization header when the user name
+        contains an escaped character. (markt)
+      </fix>
+      <fix>
+        Correctly handle a digest authorization header when one of the hex
+        field values ends the header with in an invalid character. (markt)
+      </fix>
+      <fix>
+        Correctly handle an invalid quality value in an
+        <code>Accept-Language</code> header. (markt)
+      </fix>
+      <docs>
+        <bug>62423</bug>: Fix SSL docs CRL attribute typo. (remm)
+      </docs>
+      <fix>
+        Improve IPv6 validation by ensuring that IPv4-Mapped IPv6 addresses do
+        not contain leading zeros in the IPv4 part. Based on a patch by Katya
+        Stoycheva. (markt)
+      </fix>
+      <fix>
+        Fix <code>NullPointerException</code> thrown from <code>
+        replaceSystemProperties()</code> when trying to log messages. (csutherl)
+      </fix>
+      <fix>
+        Avoid unnecessary processing of async timeouts. (markt)
+      </fix>
+    </changelog>
+  </subsection>
+  <subsection name="Jasper">
+    <changelog>
+      <add>
+        <bug>50234</bug>: Add the capability to generate a web-fragment.xml file
+        to JspC. (markt)
+      </add>
+      <fix>
+        <bug>62080</bug>: Ensure that all reads of the current thread's context
+        class loader made by the UEL API and implementation are performed via a
+        <code>PrivilegedAction</code> to ensure that a
+        <code>SecurityException</code> is not triggered when running under a
+        <code>SecurityManager</code>. (mark)
+      </fix>
+      <fix>
+        <bug>62350</bug>: Refactor
+        <code>org.apache.jasper.runtime.BodyContentImpl</code> so a
+        <code>SecurityException</code> is not thrown when running under a
+        SecurityManger and additional permissions are not required in the
+        <code>catalina.policy</code> file. This is a follow-up to the fix for
+        <bug>43925</bug>. (kkolinko/markt)
+      </fix>
+      <fix>
+        Enable JspC from Tomcat 9 to work with Maven JspC compiler plug-ins
+        written for Tomcat 8.5.x. Patch provided by Pavel Cibulka. (markt)
+      </fix>
+      <fix>
+        Update web.xml, web-fragment.xml and web.xml extracts generated by JspC
+        to use the Servlet 4.0 version of the relevant schemas. (markt)
+      </fix>
+    </changelog>
+  </subsection>
+  <subsection name="Cluster">
+    <changelog>
+      <fix>
+        Remove duplicate calls when creating a replicated session to reduce the
+        time taken to create the session and thereby reduce the chances of a
+        subsequent session update message being ignored because the session does
+        not yet exist. (markt)
+      </fix>
+      <add>
+        Add the method to send a message with a specified sendOptions. (kfujino)
+      </add>
+      <fix>
+        When sending the <code>GET_ALL_SESSIONS</code> message, make sure that
+        sends with asynchronous option in order to avoid ack timeout. Waiting to
+        receive the <code>ALL_SESSION_DATA</code> message should be done with
+        <code>waitForSendAllSessions</code> instead of ACK. (kfujino)
+      </fix>
+    </changelog>
+  </subsection>
+  <subsection name="WebSocket">
+    <changelog>
+      <update>
+        Use NIO2 API for websockets writes. (remm)
+      </update>
+      <fix>
+        When decoding of path parameter failed, make sure to throw
+        <code>DecodeException</code> instead of throwing
+        <code>ArrayIndexOutOfBoundsException</code>. (kfujino)
+      </fix>
+      <fix>
+        Improve the handling of exceptions during TLS handshakes for the
+        WebSocket client. (markt)
+      </fix>
+      <fix>
+        Enable host name verification when using TLS with the WebSocket client.
+        (markt)
+      </fix>
+    </changelog>
+  </subsection>
+  <subsection name="Web applications">
+    <changlog>
+      <fix>
+        <bug>62395</bug>: Clarify the meaning of the connector attribute
+        <code>minSpareThreads</code> in the documentation web application.
+        (markt)
+      </fix>
+      <fix>
+        Correct the documentation for the <code>allowHostHeaderMismatch</code>
+        attribute of the standard HTTP Connector implementations. (markt)
+      </fix>
+    </changlog>
+  </subsection>
+  <subsection name="Tribes">
+    <changelog>
+      <fix>
+        Ensure that the correct default value is returned when retrieve unset
+        properties in <code>McastService</code>. (kfujino)
+      </fix>
+      <add>
+        Make <code>MembershipService</code> more easily extensible. (kfujino)
+      </add>
+    </changelog>
+  </subsection>
+  <subsection name="jdbc-pool">
+    <changelog>
+      <fix>
+        When <code>logValidationErrors</code> is set to true, the connection
+        validation error is logged as <code>SEVERE</code> instead of
+        <code>WARNING</code>. (kfujino)
+      </fix>
+    </changelog>
+  </subsection>
+  <subsection name="Other">
+    <changelog>
+      <fix>
+        Ensure that Apache Tomcat may be built from source with Java 11. (markt)
+      </fix>
+      <add>
+        <bug>52381</bug>: Add OSGi metadata to JAR files, (markt)
+      </add>
+      <fix>
+        <bug>62391</bug>: Remove references to <code>javaw.exe</code> as this
+        file is not required by Tomcat and the references prevent the use of the
+        Server JRE. (markt)
+      </fix>
+      <update>
+        Update the packaged version of the Tomcat Native Library to 1.2.17 to
+        pick up the latest Windows binaries built with APR 1.6.3 and OpenSSL
+        1.0.2o. (markt)
+      </update>
+      <update>
+        <bug>62458</bug>: Update the internal fork of Commons Pool 2 to dfef97b
+        (2018-06-18) to pick up some bug fixes and enhancements. (markt)
+      </update>
+      <update>
+        Update the internal fork of Commons DBCP 2 to 2.4.0. (markt)
+      </update>
+    </changelog>
+  </subsection>
+</section>
+<section name="Tomcat 9.0.8 (markt)" rtext="2018-05-03">
   <subsection name="Catalina">
     <changelog>
       <fix>
@@ -95,7 +409,7 @@
         attribute <code>allowMultipleLeadingForwardSlashInPath</code>. (markt)
       </add>
       <fix>
-        Improve handing of overflow in the UTF-8 decoder with supplementary
+        Improve handling of overflow in the UTF-8 decoder with supplementary
         characters. (markt)
       </fix>
     </changelog>

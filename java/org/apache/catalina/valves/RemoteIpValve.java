@@ -47,7 +47,8 @@ import org.apache.tomcat.util.http.MimeHeaders;
  * This valve proceeds as follows:
  * </p>
  * <p>
- * If the incoming <code>request.getRemoteAddr()</code> matches the valve's list of internal proxies :
+ * If the incoming <code>request.getRemoteAddr()</code> matches the valve's list
+ * of internal or trusted proxies:
  * </p>
  * <ul>
  * <li>Loop on the comma delimited list of IPs and hostnames passed by the preceding load balancer or proxy in the given request's Http
@@ -92,9 +93,10 @@ import org.apache.tomcat.util.http.MimeHeaders;
  * <td>10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|
  *     169\.254\.\d{1,3}\.\d{1,3}|127\.\d{1,3}\.\d{1,3}\.\d{1,3}|
  *     172\.1[6-9]{1}\.\d{1,3}\.\d{1,3}|172\.2[0-9]{1}\.\d{1,3}\.\d{1,3}|
- *     172\.3[0-1]{1}\.\d{1,3}\.\d{1,3}
+ *     172\.3[0-1]{1}\.\d{1,3}\.\d{1,3}|
+ *     0:0:0:0:0:0:0:1|::1
  *     <br>
- * By default, 10/8, 192.168/16, 169.254/16, 127/8 and 172.16/12 are allowed.</td>
+ * By default, 10/8, 192.168/16, 169.254/16, 127/8, 172.16/12, and ::1 are allowed.</td>
  * </tr>
  * <tr>
  * <td>proxiesHeader</td>
@@ -412,7 +414,8 @@ public class RemoteIpValve extends ValveBase {
             "127\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|" +
             "172\\.1[6-9]{1}\\.\\d{1,3}\\.\\d{1,3}|" +
             "172\\.2[0-9]{1}\\.\\d{1,3}\\.\\d{1,3}|" +
-            "172\\.3[0-1]{1}\\.\\d{1,3}\\.\\d{1,3}");
+            "172\\.3[0-1]{1}\\.\\d{1,3}\\.\\d{1,3}|" +
+            "0:0:0:0:0:0:0:1|::1");
 
     /**
      * @see #setProtocolHeader(String)
@@ -570,9 +573,11 @@ public class RemoteIpValve extends ValveBase {
         final int originalServerPort = request.getServerPort();
         final String originalProxiesHeader = request.getHeader(proxiesHeader);
         final String originalRemoteIpHeader = request.getHeader(remoteIpHeader);
+        boolean isInternal = internalProxies != null &&
+                internalProxies.matcher(originalRemoteAddr).matches();
 
-        if (internalProxies !=null &&
-                internalProxies.matcher(originalRemoteAddr).matches()) {
+        if (isInternal || (trustedProxies != null &&
+                trustedProxies.matcher(originalRemoteAddr).matches())) {
             String remoteIp = null;
             // In java 6, proxiesHeaderValue should be declared as a java.util.Deque
             LinkedList<String> proxiesHeaderValue = new LinkedList<>();
@@ -588,11 +593,14 @@ public class RemoteIpValve extends ValveBase {
 
             String[] remoteIpHeaderValue = commaDelimitedListToStringArray(concatRemoteIpHeaderValue.toString());
             int idx;
+            if (!isInternal) {
+                proxiesHeaderValue.addFirst(originalRemoteAddr);
+            }
             // loop on remoteIpHeaderValue to find the first trusted remote ip and to build the proxies chain
             for (idx = remoteIpHeaderValue.length - 1; idx >= 0; idx--) {
                 String currentRemoteIp = remoteIpHeaderValue[idx];
                 remoteIp = currentRemoteIp;
-                if (internalProxies.matcher(currentRemoteIp).matches()) {
+                if (internalProxies !=null && internalProxies.matcher(currentRemoteIp).matches()) {
                     // do nothing, internalProxies IPs are not appended to the
                 } else if (trustedProxies != null &&
                         trustedProxies.matcher(currentRemoteIp).matches()) {
@@ -754,7 +762,7 @@ public class RemoteIpValve extends ValveBase {
      * Regular expression that defines the internal proxies.
      * </p>
      * <p>
-     * Default value : 10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|169\.254.\d{1,3}.\d{1,3}|127\.\d{1,3}\.\d{1,3}\.\d{1,3}
+     * Default value : 10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|169\.254.\d{1,3}.\d{1,3}|127\.\d{1,3}\.\d{1,3}\.\d{1,3}|0:0:0:0:0:0:0:1
      * </p>
      * @param internalProxies The proxy regular expression
      */

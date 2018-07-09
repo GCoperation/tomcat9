@@ -73,8 +73,6 @@ public class Http11Processor extends AbstractProcessor {
 
     private final AbstractHttp11Protocol<?> protocol;
 
-    private final UserDataHelper userDataHelper;
-
     /**
      * Input.
      */
@@ -150,8 +148,6 @@ public class Http11Processor extends AbstractProcessor {
     public Http11Processor(AbstractHttp11Protocol<?> protocol, Adapter adapter) {
         super(adapter);
         this.protocol = protocol;
-
-        userDataHelper = new UserDataHelper(log);
 
         httpParser = new HttpParser(protocol.getRelaxedPathChars(),
                 protocol.getRelaxedQueryChars());
@@ -571,7 +567,6 @@ public class Http11Processor extends AbstractProcessor {
         }
         MessageBytes protocolMB = request.protocol();
         if (protocolMB.equals(Constants.HTTP_11)) {
-            http11 = true;
             protocolMB.setString(Constants.HTTP_11);
         } else if (protocolMB.equals(Constants.HTTP_10)) {
             http11 = false;
@@ -1162,8 +1157,6 @@ public class Http11Processor extends AbstractProcessor {
     @Override
     protected final void setRequestBody(ByteChunk body) {
         InputFilter savedBody = new SavedRequestInputFilter(body);
-        savedBody.setRequest(request);
-
         Http11InputBuffer internalBuffer = (Http11InputBuffer) request.getInputBuffer();
         internalBuffer.addActiveFilter(savedBody);
     }

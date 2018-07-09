@@ -17,10 +17,12 @@
 package org.apache.catalina.filters;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,8 +80,9 @@ import org.apache.tomcat.util.res.StringManager;
 public class CorsFilter extends GenericFilter {
 
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(CorsFilter.class);
     private static final StringManager sm = StringManager.getManager(CorsFilter.class);
+
+    private transient Log log = LogFactory.getLog(CorsFilter.class); // must not be static
 
 
     /**
@@ -154,8 +157,6 @@ public class CorsFilter extends GenericFilter {
         switch (requestType) {
         case SIMPLE:
             // Handles a Simple CORS request.
-            this.handleSimpleCORS(request, response, filterChain);
-            break;
         case ACTUAL:
             // Handles an Actual CORS request.
             this.handleSimpleCORS(request, response, filterChain);
@@ -194,8 +195,6 @@ public class CorsFilter extends GenericFilter {
      * This method returns the parameter's value if it exists, or defaultValue
      * if not.
      *
-     * @param filterConfig  The configuration for the filter
-     *
      * @param name          The parameter's name
      *
      * @param defaultValue  The default value to return if the parameter does
@@ -204,7 +203,7 @@ public class CorsFilter extends GenericFilter {
      * @return The parameter's value or the default value if the parameter does
      *         not exist
      */
-    private String getInitParameter(String name, String defaultValue){
+    private String getInitParameter(String name, String defaultValue) {
 
         String value = getInitParameter(name);
         if (value != null) {
@@ -256,17 +255,14 @@ public class CorsFilter extends GenericFilter {
 
         // Section 6.1.3
         // Add a single Access-Control-Allow-Origin header.
-        if (anyOriginAllowed && !supportsCredentials) {
-            // If resource doesn't support credentials and if any origin is
-            // allowed
-            // to make CORS request, return header with '*'.
+        if (anyOriginAllowed) {
+            // If any origin is allowed, return header with '*'.
             response.addHeader(
                     CorsFilter.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
                     "*");
         } else {
-            // If the resource supports credentials add a single
-            // Access-Control-Allow-Origin header, with the value of the Origin
-            // header as value.
+            // Add a single Access-Control-Allow-Origin header, with the value
+            // of the Origin header as value.
             response.addHeader(
                     CorsFilter.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
                     origin);
@@ -497,15 +493,6 @@ public class CorsFilter extends GenericFilter {
 
         switch (corsRequestType) {
         case SIMPLE:
-            request.setAttribute(
-                    CorsFilter.HTTP_REQUEST_ATTRIBUTE_IS_CORS_REQUEST,
-                    Boolean.TRUE);
-            request.setAttribute(CorsFilter.HTTP_REQUEST_ATTRIBUTE_ORIGIN,
-                    request.getHeader(CorsFilter.REQUEST_HEADER_ORIGIN));
-            request.setAttribute(
-                    CorsFilter.HTTP_REQUEST_ATTRIBUTE_REQUEST_TYPE,
-                    corsRequestType.name().toLowerCase(Locale.ENGLISH));
-            break;
         case ACTUAL:
             request.setAttribute(
                     CorsFilter.HTTP_REQUEST_ATTRIBUTE_IS_CORS_REQUEST,
@@ -764,6 +751,10 @@ public class CorsFilter extends GenericFilter {
         // For any value other then 'true' this will be false.
         this.supportsCredentials = Boolean.parseBoolean(supportsCredentials);
 
+        if (this.supportsCredentials && this.anyOriginAllowed) {
+            throw new ServletException(sm.getString("corsFilter.invalidSupportsCredentials"));
+        }
+
         try {
             if (!preflightMaxAge.isEmpty()) {
                 this.preflightMaxAge = Long.parseLong(preflightMaxAge);
@@ -920,7 +911,19 @@ public class CorsFilter extends GenericFilter {
     }
 
 
+    /*
+     * Log objects are not Serializable but this Filter is because it extends
+     * GenericFilter. Tomcat won't serialize a Filter but in case something else
+     * does...
+     */
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+        log = LogFactory.getLog(CorsFilter.class);
+    }
+
+
     // -------------------------------------------------- CORS Response Headers
+
     /**
      * The Access-Control-Allow-Origin header indicates whether a resource can
      * be shared based by returning the value of the Origin request header in
@@ -1066,14 +1069,14 @@ public class CorsFilter extends GenericFilter {
      *       >http://www.w3.org/TR/cors/#terminology</a>
      */
     public static final Collection<String> SIMPLE_HTTP_REQUEST_CONTENT_TYPE_VALUES =
-            new HashSet<>(Arrays.asList("application/x-www-form-urlencoded",
-                    "multipart/form-data", "text/plain"));
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+                    "application/x-www-form-urlencoded", "multipart/form-data", "text/plain")));
 
     // ------------------------------------------------ Configuration Defaults
     /**
-     * By default, all origins are allowed to make requests.
+     * By default, no origins are allowed to make requests.
      */
-    public static final String DEFAULT_ALLOWED_ORIGINS = "*";
+    public static final String DEFAULT_ALLOWED_ORIGINS = "";
 
     /**
      * By default, following methods are supported: GET, POST, HEAD and OPTIONS.
@@ -1087,9 +1090,9 @@ public class CorsFilter extends GenericFilter {
     public static final String DEFAULT_PREFLIGHT_MAXAGE = "1800";
 
     /**
-     * By default, support credentials is turned on.
+     * By default, support credentials is disabled.
      */
-    public static final String DEFAULT_SUPPORTS_CREDENTIALS = "true";
+    public static final String DEFAULT_SUPPORTS_CREDENTIALS = "false";
 
     /**
      * By default, following headers are supported:

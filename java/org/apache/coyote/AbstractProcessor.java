@@ -29,6 +29,7 @@ import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.buf.ByteChunk;
 import org.apache.tomcat.util.buf.MessageBytes;
 import org.apache.tomcat.util.http.parser.Host;
+import org.apache.tomcat.util.log.UserDataHelper;
 import org.apache.tomcat.util.net.AbstractEndpoint.Handler.SocketState;
 import org.apache.tomcat.util.net.DispatchType;
 import org.apache.tomcat.util.net.SSLSupport;
@@ -50,6 +51,7 @@ public abstract class AbstractProcessor extends AbstractProcessorLight implement
     protected final Adapter adapter;
     protected final AsyncStateMachine asyncStateMachine;
     private volatile long asyncTimeout = -1;
+    private volatile long asyncTimeoutGeneration = 0;
     protected final Request request;
     protected final Response response;
     protected volatile SocketWrapperBase<?> socketWrapper = null;
@@ -61,6 +63,7 @@ public abstract class AbstractProcessor extends AbstractProcessorLight implement
      */
     private ErrorState errorState = ErrorState.NONE;
 
+    protected final UserDataHelper userDataHelper;
 
     public AbstractProcessor(Adapter adapter) {
         this(adapter, new Request(), new Response());
@@ -75,6 +78,7 @@ public abstract class AbstractProcessor extends AbstractProcessorLight implement
         response.setHook(this);
         request.setResponse(response);
         request.setHook(this);
+        userDataHelper = new UserDataHelper(getLog());
     }
 
     /**
@@ -294,8 +298,23 @@ public abstract class AbstractProcessor extends AbstractProcessorLight implement
 
         } catch (IllegalArgumentException e) {
             // IllegalArgumentException indicates that the host name is invalid
+            UserDataHelper.Mode logMode = userDataHelper.getNextMode();
+            if (logMode != null) {
+                String message = sm.getString("abstractProcessor.hostInvalid", valueMB.toString());
+                switch (logMode) {
+                    case INFO_THEN_DEBUG:
+                        message += sm.getString("abstractProcessor.fallToDebug");
+                        //$FALL-THROUGH$
+                    case INFO:
+                        getLog().info(message, e);
+                        break;
+                    case DEBUG:
+                        getLog().debug(message, e);
+                }
+            }
+
             response.setStatus(400);
-            setErrorState(ErrorState.CLOSE_CLEAN, null);
+            setErrorState(ErrorState.CLOSE_CLEAN, e);
         }
     }
 
@@ -602,7 +621,14 @@ public abstract class AbstractProcessor extends AbstractProcessorLight implement
     private void doTimeoutAsync() {
         // Avoid multiple timeouts
         setAsyncTimeout(-1);
+        asyncTimeoutGeneration = asyncStateMachine.getCurrentGeneration();
         processSocketEvent(SocketEvent.TIMEOUT, true);
+    }
+
+
+    @Override
+    public boolean checkAsyncTimeoutGeneration() {
+        return asyncTimeoutGeneration == asyncStateMachine.getCurrentGeneration();
     }
 
 

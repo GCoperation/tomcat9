@@ -326,8 +326,8 @@
     <attribute name="allowHostHeaderMismatch" required="false">
       <p>By default Tomcat will reject requests that specify a host in the
       request line but specify a different host in the host header. This
-      chekc can be disabled by setting this attribute to <code>false</code>. If
-      not specified, the default is <code>true</code>.</p>
+      check can be disabled by setting this attribute to <code>true</code>. If
+      not specified, the default is <code>false</code>.</p>
     </attribute>
 
     <attribute name="allowedTrailerHeaders" required="false">
@@ -522,13 +522,14 @@
     </attribute>
 
     <attribute name="minSpareThreads" required="false">
-      <p>The minimum number of threads always kept running. If not specified,
-      the default of <code>10</code> is used. If an executor is associated
-      with this connector, this attribute is ignored as the connector will
-      execute tasks using the executor rather than an internal thread pool. Note
-      that if an executor is configured any value set for this attribute will be
-      recorded correctly but it will be reported (e.g. via JMX) as
-      <code>-1</code> to make clear that it is not used.</p>
+      <p>The minimum number of threads always kept running.  This includes both
+      active and idle threads. If not specified, the default of <code>10</code>
+      is used. If an executor is associated with this connector, this attribute
+      is ignored as the connector will execute tasks using the executor rather
+      than an internal thread pool. Note that if an executor is configured any
+      value set for this attribute will be recorded correctly but it will be
+      reported (e.g. via JMX) as <code>-1</code> to make clear that it is not
+      used.</p>
     </attribute>
 
     <attribute name="noCompressionUserAgents" required="false">
@@ -1163,7 +1164,7 @@
       lists for the certificate authorities. The format is PEM-encoded. If not
       defined, client certificates will not be checked against a certificate
       revocation list (unless an OpenSSL based connector is used and
-      <strong>certificateRevocationPath</strong> is defined). Relative paths
+      <strong>certificateRevocationListPath</strong> is defined). Relative paths
       will be resolved against <code>$CATALINA_BASE</code>. JSSE based
       connectors may also specify a URL for this attribute.</p>
     </attribute>
@@ -1575,7 +1576,7 @@
     </attribute>
 
     <attribute name="crlFile" required="false">
-      <p>This is an alias for the <code>certificateRevocationFile</code>
+      <p>This is an alias for the <code>certificateRevocationListFile</code>
       attribute of the default
       <a href="#SSL_Support_-_SSLHostConfig">SSLHostConfig</a> element.</p>
     </attribute>
@@ -1731,13 +1732,13 @@
     </attribute>
 
     <attribute name="SSLCARevocationFile" required="false">
-      <p>This is an alias for the <code>certificateRevocationFile</code>
+      <p>This is an alias for the <code>certificateRevocationListFile</code>
       attribute of the default
       <a href="#SSL_Support_-_SSLHostConfig">SSLHostConfig</a> element.</p>
     </attribute>
 
     <attribute name="SSLCARevocationPath" required="false">
-      <p>This is an alias for the <code>certificateRevocationPath</code>
+      <p>This is an alias for the <code>certificateRevocationListPath</code>
       attribute of the default
       <a href="#SSL_Support_-_SSLHostConfig">SSLHostConfig</a> element.</p>
     </attribute>

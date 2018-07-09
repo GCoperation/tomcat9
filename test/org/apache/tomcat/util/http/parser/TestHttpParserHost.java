@@ -54,20 +54,29 @@ public class TestHttpParserHost {
         result.add(new Object[] { TestType.IPv4, "127.0.0.1:8080", Integer.valueOf(9), null} );
         result.add(new Object[] { TestType.IPv4, "0.0.0.0", Integer.valueOf(-1), null} );
         result.add(new Object[] { TestType.IPv4, "0.0.0.0:8080", Integer.valueOf(7), null} );
-        result.add(new Object[] { TestType.IPv4, "0", Integer.valueOf(-1), null} );
         // IPv4 - invalid
-        result.add(new Object[] { TestType.IPv4, "0.0", Integer.valueOf(-1), IAE} );
-        result.add(new Object[] { TestType.IPv4, "0.0.0", Integer.valueOf(-1), IAE} );
         result.add(new Object[] { TestType.IPv4, ".0.0.0", Integer.valueOf(-1), IAE} );
         result.add(new Object[] { TestType.IPv4, "0.0.0.", Integer.valueOf(-1), IAE} );
-        result.add(new Object[] { TestType.IPv4, "256.0.0.0", Integer.valueOf(-1), IAE} );
-        result.add(new Object[] { TestType.IPv4, "0.256.0.0", Integer.valueOf(-1), IAE} );
-        result.add(new Object[] { TestType.IPv4, "0.0.256.0", Integer.valueOf(-1), IAE} );
-        result.add(new Object[] { TestType.IPv4, "0.0.0.256", Integer.valueOf(-1), IAE} );
-        result.add(new Object[] { TestType.IPv4, "0.a.0.0", Integer.valueOf(-1), IAE} );
         result.add(new Object[] { TestType.IPv4, "0..0.0", Integer.valueOf(-1), IAE} );
         result.add(new Object[] { TestType.IPv4, "0]", Integer.valueOf(-1), IAE} );
         // Domain Name - valid
+        result.add(new Object[] { TestType.IPv4, "0", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "0.0", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "0.0:8080", Integer.valueOf(3), null} );
+        result.add(new Object[] { TestType.IPv4, "0.0.0", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "0.0.0:8080", Integer.valueOf(5), null} );
+        result.add(new Object[] { TestType.IPv4, "0.00.0.0", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "0.00.0.0:8080", Integer.valueOf(8), null} );
+        result.add(new Object[] { TestType.IPv4, "256.0.0.0", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "256.0.0.0:8080", Integer.valueOf(9), null} );
+        result.add(new Object[] { TestType.IPv4, "0.256.0.0", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "0.256.0.0:8080", Integer.valueOf(9), null} );
+        result.add(new Object[] { TestType.IPv4, "0.0.256.0", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "0.0.256.0:8080", Integer.valueOf(9), null} );
+        result.add(new Object[] { TestType.IPv4, "0.0.0.256", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "0.0.0.256:8080", Integer.valueOf(9), null} );
+        result.add(new Object[] { TestType.IPv4, "0.a.0.0", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "0.a.0.0:8080", Integer.valueOf(7), null} );
         result.add(new Object[] { TestType.IPv4, "localhost", Integer.valueOf(-1), null} );
         result.add(new Object[] { TestType.IPv4, "localhost:8080", Integer.valueOf(9), null} );
         result.add(new Object[] { TestType.IPv4, "tomcat.apache.org", Integer.valueOf(-1), null} );
@@ -80,16 +89,43 @@ public class TestHttpParserHost {
         result.add(new Object[] { TestType.IPv4, "foo.0.0.com:8080", Integer.valueOf(11), null} );
         result.add(new Object[] { TestType.IPv4, "1foo.0.0.com", Integer.valueOf(-1), null} );
         result.add(new Object[] { TestType.IPv4, "1foo.0.0.com:8080", Integer.valueOf(12), null} );
+        result.add(new Object[] { TestType.IPv4, "foo1.0.0.com", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "foo1.0.0.com:8080", Integer.valueOf(12), null} );
+        result.add(new Object[] { TestType.IPv4, "1foo1.0.0.com", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "1foo1.0.0.com:8080", Integer.valueOf(13), null} );
         result.add(new Object[] { TestType.IPv4, "1-foo.0.0.com", Integer.valueOf(-1), null} );
         result.add(new Object[] { TestType.IPv4, "1-foo.0.0.com:8080", Integer.valueOf(13), null} );
         result.add(new Object[] { TestType.IPv4, "1--foo.0.0.com", Integer.valueOf(-1), null} );
         result.add(new Object[] { TestType.IPv4, "1--foo.0.0.com:8080", Integer.valueOf(14), null} );
+        result.add(new Object[] { TestType.IPv4, "foo.0.0.1com", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "foo.0.0.1com:8080", Integer.valueOf(12), null} );
+        result.add(new Object[] { TestType.IPv4, "foo.0.0.com1", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "foo.0.0.com1:8080", Integer.valueOf(12), null} );
+        result.add(new Object[] { TestType.IPv4, "foo.0.0.1com1", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "foo.0.0.1com1:8080", Integer.valueOf(13), null} );
+        result.add(new Object[] { TestType.IPv4, "foo.0.0.1-com", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "foo.0.0.1-com:8080", Integer.valueOf(13), null} );
+        result.add(new Object[] { TestType.IPv4, "foo.0.0.1--com", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "foo.0.0.1--com:8080", Integer.valueOf(14), null} );
         result.add(new Object[] { TestType.IPv4, "com", Integer.valueOf(-1), null} );
         result.add(new Object[] { TestType.IPv4, "com:8080", Integer.valueOf(3), null} );
         result.add(new Object[] { TestType.IPv4, "0com", Integer.valueOf(-1), null} );
         result.add(new Object[] { TestType.IPv4, "0com:8080", Integer.valueOf(4), null} );
+        result.add(new Object[] { TestType.IPv4, "0.0.0com", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "0.0.0com:8080", Integer.valueOf(8), null} );
+        result.add(new Object[] { TestType.IPv4, "0.0.0.0com", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "0.0.0.0com:8080", Integer.valueOf(10), null} );
         result.add(new Object[] { TestType.IPv4, "123", Integer.valueOf(-1), null} );
         result.add(new Object[] { TestType.IPv4, "123:8080", Integer.valueOf(3), null} );
+        result.add(new Object[] { TestType.IPv4, "foo.bar.0com", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "foo.bar.0com:8080", Integer.valueOf(12), null} );
+        result.add(new Object[] { TestType.IPv4, "myapp-t.mydomain.com", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "myapp-t.mydomain.com:8080", Integer.valueOf(20), null} );
+        result.add(new Object[] { TestType.IPv4, "myapp-t.my-domain.com", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "myapp-t.my-domain.com:8080", Integer.valueOf(21), null} );
+        result.add(new Object[] { TestType.IPv4, "myapp-t.my-domain.c-om", Integer.valueOf(-1), null} );
+        result.add(new Object[] { TestType.IPv4, "myapp-t.my-domain.c-om:8080", Integer.valueOf(22), null} );
+        result.add(new Object[] { TestType.IPv4, "gateway.demo-ilt-latest-demo:9000", Integer.valueOf(28), null} );
         // Domain Name - invalid
         result.add(new Object[] { TestType.IPv4, ".", Integer.valueOf(-1), IAE} );
         result.add(new Object[] { TestType.IPv4, ".:8080", Integer.valueOf(-1), IAE} );
@@ -106,10 +142,6 @@ public class TestHttpParserHost {
         result.add(new Object[] { TestType.IPv4, "foo.-bar", Integer.valueOf(-1), IAE} );
         result.add(new Object[] { TestType.IPv4, "foo.^bar", Integer.valueOf(-1), IAE} );
         result.add(new Object[] { TestType.IPv4, "foo.b*ar", Integer.valueOf(-1), IAE} );
-        result.add(new Object[] { TestType.IPv4, "0.0.0com", Integer.valueOf(-1), IAE} );
-        result.add(new Object[] { TestType.IPv4, "0.0.0.0com", Integer.valueOf(-1), IAE} );
-        result.add(new Object[] { TestType.IPv4, "foo.bar.0com", Integer.valueOf(-1), IAE} );
-        result.add(new Object[] { TestType.IPv4, "foo.bar.0com:8080", Integer.valueOf(-1), IAE} );
         // IPv6 - valid
         result.add(new Object[] { TestType.IPv6, "[::1]", Integer.valueOf(-1), null} );
         result.add(new Object[] { TestType.IPv6, "[::1]:8080", Integer.valueOf(5), null} );
@@ -160,6 +192,7 @@ public class TestHttpParserHost {
                 Integer.valueOf(-1), IAE} );
         result.add(new Object[] { TestType.IPv6, "[1234:5678:90AB:CDEF:1234:5678:90AB:CDEF",
                 Integer.valueOf(-1), IAE} );
+        result.add(new Object[] { TestType.IPv6, "[::127.00.0.1]", Integer.valueOf(-1), IAE} );
         result.add(new Object[] { TestType.IPv6, "[0::0::127.0.0.1]", Integer.valueOf(-1), IAE} );
         result.add(new Object[] { TestType.IPv6, "[0:0:G:0:0:0:127.0.0.1]", Integer.valueOf(-1), IAE} );
         result.add(new Object[] { TestType.IPv6, "[00000:0:0:0:0:0:127.0.0.1]", Integer.valueOf(-1), IAE} );
@@ -187,6 +220,25 @@ public class TestHttpParserHost {
 
     @Test
     public void testHost() {
+        Class<? extends Exception> exceptionClass = null;
+        int result = -1;
+        try {
+            result = Host.parse(input);
+        } catch (Exception e) {
+            exceptionClass = e.getClass();
+        }
+        Assert.assertEquals(input, expectedResult.intValue(), result);
+        if (expectedException == null) {
+            Assert.assertNull(input, exceptionClass);
+        } else {
+            Assert.assertNotNull(exceptionClass);
+            Assert.assertTrue(input, expectedException.isAssignableFrom(exceptionClass));
+        }
+    }
+
+
+    @Test
+    public void testHostType() {
         Class<? extends Exception> exceptionClass = null;
         int result = -1;
         try {

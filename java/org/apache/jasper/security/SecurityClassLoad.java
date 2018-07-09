@@ -26,8 +26,6 @@ import org.apache.juli.logging.LogFactory;
  */
 public final class SecurityClassLoad {
 
-    private static final Log log = LogFactory.getLog(SecurityClassLoad.class);
-
     public static void securityClassLoad(ClassLoader loader){
 
         if( System.getSecurityManager() == null ){
@@ -39,26 +37,22 @@ public final class SecurityClassLoad {
             // Ensure XMLInputFactory is loaded with Tomcat's class loader
             loader.loadClass( basePackage + "compiler.EncodingDetector");
 
+            loader.loadClass( basePackage + "runtime.JspContextWrapper");
             loader.loadClass( basePackage + "runtime.JspFactoryImpl$PrivilegedGetPageContext");
             loader.loadClass( basePackage + "runtime.JspFactoryImpl$PrivilegedReleasePageContext");
-
+            loader.loadClass( basePackage + "runtime.JspFragmentHelper");
             loader.loadClass( basePackage + "runtime.JspRuntimeLibrary");
-
+            loader.loadClass( basePackage + "runtime.PageContextImpl");
+            loader.loadClass( basePackage + "runtime.ProtectedFunctionMapper");
             loader.loadClass( basePackage + "runtime.ServletResponseWrapperInclude");
             loader.loadClass( basePackage + "runtime.TagHandlerPool");
-            loader.loadClass( basePackage + "runtime.JspFragmentHelper");
-
-            loader.loadClass( basePackage + "runtime.ProtectedFunctionMapper");
-
-            loader.loadClass( basePackage + "runtime.PageContextImpl");
-
-            loader.loadClass( basePackage + "runtime.JspContextWrapper");
 
             // Trigger loading of class and reading of property
             SecurityUtil.isPackageProtectionEnabled();
 
             loader.loadClass( basePackage + "servlet.JspServletWrapper");
         } catch (ClassNotFoundException ex) {
+            Log log = LogFactory.getLog(SecurityClassLoad.class);
             log.error("SecurityClassLoad", ex);
         }
     }

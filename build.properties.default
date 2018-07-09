@@ -25,7 +25,7 @@
 # ----- Version Control Flags -----
 version.major=9
 version.minor=0
-version.build=8
+version.build=10
 version.patch=0
 version.suffix=
 
@@ -126,7 +126,7 @@ jdt.loc.1=http://archive.eclipse.org/eclipse/downloads/drops4/${jdt.release}/ecj
 jdt.loc.2=http://download.eclipse.org/eclipse/downloads/drops4/${jdt.release}/ecj-${jdt.version}.jar
 
 # ----- Tomcat native library -----
-tomcat-native.version=1.2.16
+tomcat-native.version=1.2.17
 tomcat-native.home=${base.path}/tomcat-native-${tomcat-native.version}
 tomcat-native.tar.gz=${tomcat-native.home}/tomcat-native.tar.gz
 tomcat-native.loc.1=${base-tomcat.loc.1}/tomcat-connectors/native/${tomcat-native.version}/source/tomcat-native-${tomcat-native.version}-src.tar.gz
@@ -210,3 +210,22 @@ findbugs.home=${base.path}/findbugs-${findbugs.version}
 findbugs.lib=${findbugs.home}/lib
 findbugs.jar=${findbugs.lib}/findbugs-ant.jar
 findbugs.loc=${base-sf.loc}/project/findbugs/findbugs/${findbugs.version}/findbugs-${findbugs.version}.tar.gz
+
+# ----- SAAJ API, used by Code Signing for releases -----
+# ----- No longer part of JRE from Java 11 onwards  -----
+# ----- CDDL Licensed                               -----
+saaj-api.version=1.3.5
+saaj-api.home=${base.path}/saaj-api-${saaj-api.version}
+saaj-api.loc=${base-maven.loc}/javax/xml/soap/saaj-api/${saaj-api.version}/saaj-api-${saaj-api.version}.jar
+saaj-api.jar=${saaj-api.home}/saaj-api-${saaj-api.version}.jar
+
+# ----- bnd & bndlib, version 4.0.0 or later  -----
+# ----- provides OSGI metadata for JARs       -----
+bnd.version=4.0.0
+bnd.home=${base.path}/bnd-${bnd.version}
+bnd.loc=${base-maven.loc}/biz/aQute/bnd/biz.aQute.bnd/${bnd.version}/biz.aQute.bnd-${bnd.version}.jar
+bnd.jar=${bnd.home}/biz.aQute.bnd-${bnd.version}.jar
+
+bndlib.home=${base.path}/bndlib-${bnd.version}
+bndlib.loc=${base-maven.loc}/biz/aQute/bnd/biz.aQute.bndlib/${bnd.version}/biz.aQute.bndlib-${bnd.version}.jar
+bndlib.jar=${bndlib.home}/biz.aQute.bndlib-${bnd.version}.jar

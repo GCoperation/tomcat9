@@ -50,7 +50,7 @@ import org.apache.juli.logging.LogFactory;
  * Need to fix this, could use java.nio and only need one thread to send and receive, or
  * just use a timeout on the receive
  */
-public class McastServiceImpl {
+public class McastServiceImpl extends MembershipProviderBase {
 
     private static final Log log = LogFactory.getLog(McastService.class);
 
@@ -95,10 +95,7 @@ public class McastServiceImpl {
      * Reuse the receivePacket, no need to create a new one everytime
      */
     protected DatagramPacket receivePacket;
-    /**
-     * The membership, used so that we calculate memberships when they arrive or don't arrive
-     */
-    protected Membership membership;
+
     /**
      * The actual listener, for callback when stuff goes down
      */
@@ -256,6 +253,7 @@ public class McastServiceImpl {
      * @throws IOException if the service fails to start
      * @throws IllegalStateException if the service is already started
      */
+    @Override
     public synchronized void start(int level) throws IOException {
         boolean valid = false;
         if ( (level & Channel.MBR_RX_SEQ)==Channel.MBR_RX_SEQ ) {
@@ -308,6 +306,7 @@ public class McastServiceImpl {
      * @return <code>true</code> if the stop is complete
      * @throws IOException if the service fails to disconnect from the sockets
      */
+    @Override
     public synchronized boolean stop(int level) throws IOException {
         boolean valid = false;
 

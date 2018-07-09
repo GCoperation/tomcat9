@@ -24,6 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -214,6 +215,15 @@ public class NamingResourcesImpl extends LifecycleMBeanBase
      */
     public void addEjb(ContextEjb ejb) {
 
+        // Entries with lookup-name and ejb-link are an error (EE.5.5.2 / EE.5.5.3)
+        String ejbLink = ejb.getLink();
+        String lookupName = ejb.getLookupName();
+
+        if (ejbLink != null && ejbLink.length() > 0 && lookupName != null && lookupName.length() > 0) {
+            throw new IllegalArgumentException(
+                    sm.getString("namingResources.ejbLookupLink", ejb.getName()));
+        }
+
         if (entries.contains(ejb.getName())) {
             return;
         } else {
@@ -260,6 +270,22 @@ public class NamingResourcesImpl extends LifecycleMBeanBase
                 // It exists but it isn't an env or a res link...
                 return;
             }
+        }
+
+        List<InjectionTarget> injectionTargets = environment.getInjectionTargets();
+        String value = environment.getValue();
+        String lookupName = environment.getLookupName();
+
+        // Entries with injection targets but no value are effectively ignored
+        if (injectionTargets != null && injectionTargets.size() > 0 &&
+                (value == null || value.length() == 0)) {
+            return;
+        }
+
+        // Entries with lookup-name and value are an error (EE.5.4.1.3)
+        if (value != null && value.length() > 0 && lookupName != null && lookupName.length() > 0) {
+            throw new IllegalArgumentException(
+                    sm.getString("namingResources.envEntryLookupValue", environment.getName()));
         }
 
         if (!checkResourceType(environment)) {

@@ -55,8 +55,6 @@ public class SmapUtil {
 
     private static final Charset SMAP_ENCODING = StandardCharsets.UTF_8;
 
-    private static final Log log = LogFactory.getLog(SmapUtil.class);
-
     //*********************************************************************
     // Public entry points
 
@@ -161,7 +159,7 @@ public class SmapUtil {
     // Installation logic (from Robert Field, JSR-045 spec lead)
     private static class SDEInstaller {
 
-        private final Log log = LogFactory.getLog(SDEInstaller.class);
+        private final Log log = LogFactory.getLog(SDEInstaller.class); // must not be static
 
         static final String nameSDE = "SourceDebugExtension";
 
@@ -801,12 +799,14 @@ public class SmapUtil {
                 smap = new String(baos.toByteArray(), encoding);
             }
         } catch (IOException ioe) {
+            Log log = LogFactory.getLog(SmapUtil.class);
             log.warn(Localizer.getMessage("jsp.warning.loadSmap", className), ioe);
         } finally {
             if (is != null) {
                 try {
                     is.close();
                 } catch (IOException ioe) {
+                    Log log = LogFactory.getLog(SmapUtil.class);
                     log.warn(Localizer.getMessage("jsp.warning.loadSmap", className), ioe);
                 }
             }

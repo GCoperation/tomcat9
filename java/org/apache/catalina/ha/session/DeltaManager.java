@@ -33,6 +33,7 @@ import org.apache.catalina.Session;
 import org.apache.catalina.ha.ClusterManager;
 import org.apache.catalina.ha.ClusterMessage;
 import org.apache.catalina.session.ManagerBase;
+import org.apache.catalina.tribes.Channel;
 import org.apache.catalina.tribes.Member;
 import org.apache.catalina.tribes.io.ReplicationStream;
 import org.apache.juli.logging.Log;
@@ -746,7 +747,7 @@ public class DeltaManager extends ClusterManagerBase{
                 synchronized(receivedMessageQueue) {
                      receiverQueue = true ;
                 }
-                cluster.send(msg, mbr);
+                cluster.send(msg, mbr, Channel.SEND_OPTIONS_ASYNCHRONOUS);
                 if (log.isInfoEnabled())
                     log.info(sm.getString("deltaManager.waitForSessionState",
                             getName(), mbr, Integer.valueOf(getStateTransferTimeout())));
@@ -757,16 +758,12 @@ public class DeltaManager extends ClusterManagerBase{
                 synchronized(receivedMessageQueue) {
                     for (SessionMessage smsg : receivedMessageQueue) {
                         if (!stateTimestampDrop) {
-                            messageReceived(smsg,
-                                    smsg.getAddress() != null ? smsg.getAddress() : null);
+                            messageReceived(smsg, smsg.getAddress());
                         } else {
                             if (smsg.getEventType() != SessionMessage.EVT_GET_ALL_SESSIONS &&
                                     smsg.getTimestamp() >= stateTransferCreateSendTime) {
                                 // FIXME handle EVT_GET_ALL_SESSIONS later
-                                messageReceived(smsg,
-                                        smsg.getAddress() != null ?
-                                                smsg.getAddress() :
-                                                null);
+                                messageReceived(smsg, smsg.getAddress());
                             } else {
                                 if (log.isWarnEnabled()) {
                                     log.warn(sm.getString("deltaManager.dropMessage",
@@ -917,7 +914,7 @@ public class DeltaManager extends ClusterManagerBase{
                     break;
             } //switch
 
-            messageReceived(msg, msg.getAddress() != null ? msg.getAddress() : null);
+            messageReceived(msg, msg.getAddress());
         }
     }
 
@@ -1226,7 +1223,12 @@ public class DeltaManager extends ClusterManagerBase{
         counterReceive_EVT_SESSION_DELTA++;
         byte[] delta = msg.getSession();
         DeltaSession session = (DeltaSession) findSession(msg.getSessionID());
-        if (session != null) {
+        if (session == null) {
+            if (log.isDebugEnabled()) {
+                log.debug(sm.getString("deltaManager.receiveMessage.delta.unknown",
+                        getName(), msg.getSessionID()));
+            }
+        } else {
             if (log.isDebugEnabled()) {
                 log.debug(sm.getString("deltaManager.receiveMessage.delta",
                         getName(), msg.getSessionID()));
@@ -1292,7 +1294,6 @@ public class DeltaManager extends ClusterManagerBase{
                     getName(), msg.getSessionID()));
         }
         DeltaSession session = (DeltaSession) createEmptySession();
-        session.setManager(this);
         session.setValid(true);
         session.setPrimarySession(false);
         session.setCreationTime(msg.getTimestamp());
@@ -1301,7 +1302,6 @@ public class DeltaManager extends ClusterManagerBase{
         session.setMaxInactiveInterval(getContext().getSessionTimeout() * 60, false);
         session.access();
         session.setId(msg.getSessionID(), notifySessionListenersOnReplication);
-        session.resetDeltaRequest();
         session.endAccess();
 
     }
@@ -1430,7 +1430,8 @@ public class DeltaManager extends ClusterManagerBase{
             log.debug(sm.getString("deltaManager.createMessage.allSessionData", getName()));
         }
         counterSend_EVT_ALL_SESSION_DATA++;
-        cluster.send(newmsg, sender);
+        int sendOptions = Channel.SEND_OPTIONS_SYNCHRONIZED_ACK|Channel.SEND_OPTIONS_USE_ACK;
+        cluster.send(newmsg, sender, sendOptions);
     }
 
     @Override

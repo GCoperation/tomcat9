@@ -40,6 +40,7 @@ import org.junit.Test;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Wrapper;
+import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.SimpleHttpClient;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.startup.TomcatBaseTest;
@@ -228,7 +229,7 @@ public class TestSwallowAbortedUploads extends TomcatBaseTest {
         private static final String URI = "/uploadAborted";
         private static final String servletName = "uploadAborted";
         private static final int limitSize = 100;
-        private static final int hugeSize = 2000000;
+        private static final int hugeSize = 10000000;
 
         private Context context;
 
@@ -252,8 +253,12 @@ public class TestSwallowAbortedUploads extends TomcatBaseTest {
             context.addServletMappingDecoded(URI, servletName);
             context.setSwallowAbortedUploads(swallow);
 
+            Connector c = tomcat.getConnector();
+            c.setMaxPostSize(2 * hugeSize);
+            c.setProperty("maxSwallowSize", Integer.toString(hugeSize));
+
             tomcat.start();
-            setPort(tomcat.getConnector().getLocalPort());
+            setPort(c.getLocalPort());
         }
 
         private Exception doRequest(boolean limited, boolean swallow) {
@@ -318,9 +323,9 @@ public class TestSwallowAbortedUploads extends TomcatBaseTest {
 
         private static final long serialVersionUID = 1L;
 
-        private int status = 200;
+        private final int status;
 
-        public void setStatus(int status) {
+        public AbortedPOSTServlet(int status) {
             this.status = status;
         }
 
@@ -344,7 +349,7 @@ public class TestSwallowAbortedUploads extends TomcatBaseTest {
 
         private static final String URI = "/uploadAborted";
         private static final String servletName = "uploadAborted";
-        private static final int hugeSize = 2000000;
+        private static final int hugeSize = 10000000;
 
         private Context context;
 
@@ -353,16 +358,18 @@ public class TestSwallowAbortedUploads extends TomcatBaseTest {
 
             Tomcat tomcat = getTomcatInstance();
             context = tomcat.addContext("", TEMP_DIR);
-            AbortedPOSTServlet servlet = new AbortedPOSTServlet();
-            servlet.setStatus(status);
-            Tomcat.addServlet(context, servletName,
-                              servlet);
+            AbortedPOSTServlet servlet = new AbortedPOSTServlet(status);
+            Tomcat.addServlet(context, servletName, servlet);
             context.addServletMappingDecoded(URI, servletName);
             context.setSwallowAbortedUploads(swallow);
 
             tomcat.start();
 
-            setPort(tomcat.getConnector().getLocalPort());
+            Connector c = tomcat.getConnector();
+            c.setMaxPostSize(2 * hugeSize);
+            c.setProperty("maxSwallowSize", Integer.toString(hugeSize));
+
+            setPort(c.getLocalPort());
         }
 
         private Exception doRequest(int status, boolean swallow) {

@@ -45,7 +45,6 @@ import org.apache.catalina.ha.ClusterValve;
 import org.apache.catalina.ha.session.ClusterSessionListener;
 import org.apache.catalina.ha.session.DeltaManager;
 import org.apache.catalina.ha.session.JvmRouteBinderValve;
-import org.apache.catalina.ha.session.SessionMessage;
 import org.apache.catalina.tribes.Channel;
 import org.apache.catalina.tribes.ChannelListener;
 import org.apache.catalina.tribes.Member;
@@ -680,13 +679,13 @@ public class SimpleTcpCluster extends LifecycleMBeanBase
      */
     @Override
     public void send(ClusterMessage msg, Member dest) {
+        send(msg, dest, this.channelSendOptions);
+    }
+
+    @Override
+    public void send(ClusterMessage msg, Member dest, int sendOptions) {
         try {
             msg.setAddress(getLocalMember());
-            int sendOptions = channelSendOptions;
-            if (msg instanceof SessionMessage
-                    && ((SessionMessage)msg).getEventType() == SessionMessage.EVT_ALL_SESSION_DATA) {
-                sendOptions = Channel.SEND_OPTIONS_SYNCHRONIZED_ACK|Channel.SEND_OPTIONS_USE_ACK;
-            }
             if (dest != null) {
                 if (!getLocalMember().equals(dest)) {
                     channel.send(new Member[] {dest}, msg, sendOptions);

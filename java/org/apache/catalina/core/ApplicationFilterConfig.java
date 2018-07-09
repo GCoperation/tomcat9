@@ -14,15 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 package org.apache.catalina.core;
 
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +37,6 @@ import org.apache.catalina.Globals;
 import org.apache.catalina.security.SecurityUtil;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
-import org.apache.tomcat.InstanceManager;
 import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.log.SystemLogHandler;
@@ -61,7 +59,7 @@ public final class ApplicationFilterConfig implements FilterConfig, Serializable
     static final StringManager sm =
         StringManager.getManager(Constants.Package);
 
-    private static final Log log = LogFactory.getLog(ApplicationFilterConfig.class);
+    private transient Log log = LogFactory.getLog(ApplicationFilterConfig.class); // must not be static
 
     /**
      * Empty String collection to serve as the basis for empty enumerations.
@@ -104,7 +102,7 @@ public final class ApplicationFilterConfig implements FilterConfig, Serializable
             getFilter();
         } else {
             this.filter = filterDef.getFilter();
-            getInstanceManager().newInstance(filter);
+            context.getInstanceManager().newInstance(filter);
             initFilter();
         }
     }
@@ -129,11 +127,6 @@ public final class ApplicationFilterConfig implements FilterConfig, Serializable
      * The <code>FilterDef</code> that defines our associated Filter.
      */
     private final FilterDef filterDef;
-
-    /**
-     * the InstanceManager used to create and destroy filter instances.
-     */
-    private transient InstanceManager instanceManager;
 
     /**
      * JMX registration name
@@ -253,7 +246,7 @@ public final class ApplicationFilterConfig implements FilterConfig, Serializable
 
         // Identify the class loader we will be using
         String filterClass = filterDef.getFilterClass();
-        this.filter = (Filter) getInstanceManager().newInstance(filterClass);
+        this.filter = (Filter) context.getInstanceManager().newInstance(filterClass);
 
         initFilter();
 
@@ -334,20 +327,6 @@ public final class ApplicationFilterConfig implements FilterConfig, Serializable
 
     // -------------------------------------------------------- Private Methods
 
-    private InstanceManager getInstanceManager() {
-        if (instanceManager == null) {
-            if (context instanceof StandardContext) {
-                instanceManager = context.getInstanceManager();
-            } else {
-                instanceManager = new DefaultInstanceManager(null,
-                        new HashMap<String, Map<String, String>>(),
-                        context,
-                        getClass().getClassLoader());
-            }
-        }
-        return instanceManager;
-    }
-
     private void registerJMX() {
         String parentName = context.getName();
         if (!parentName.startsWith("/")) {
@@ -403,4 +382,14 @@ public final class ApplicationFilterConfig implements FilterConfig, Serializable
         }
 
     }
+
+
+    /*
+     * Log objects are not Serializable.
+     */
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+        log = LogFactory.getLog(ApplicationFilterConfig.class);
+    }
+
 }

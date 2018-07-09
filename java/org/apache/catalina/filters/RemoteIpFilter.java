@@ -17,6 +17,7 @@
 package org.apache.catalina.filters;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -67,7 +68,8 @@ import org.apache.juli.logging.LogFactory;
  * This servlet filter proceeds as follows:
  * </p>
  * <p>
- * If the incoming <code>request.getRemoteAddr()</code> matches the servlet filter's list of internal proxies :
+ * If the incoming <code>request.getRemoteAddr()</code> matches the servlet
+ * filter's list of internal or trusted proxies:
  * </p>
  * <ul>
  * <li>Loop on the comma delimited list of IPs and hostnames passed by the preceding load balancer or proxy in the given request's Http
@@ -113,9 +115,10 @@ import org.apache.juli.logging.LogFactory;
  * <td>10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|
  *     169\.254\.\d{1,3}\.\d{1,3}|127\.\d{1,3}\.\d{1,3}\.\d{1,3}|
  *     172\.1[6-9]{1}\.\d{1,3}\.\d{1,3}|172\.2[0-9]{1}\.\d{1,3}\.\d{1,3}|
- *     172\.3[0-1]{1}\.\d{1,3}\.\d{1,3}
+ *     172\.3[0-1]{1}\.\d{1,3}\.\d{1,3}|
+ *     0:0:0:0:0:0:0:1|::1
  *     <br>
- * By default, 10/8, 192.168/16, 169.254/16, 127/8 and 172.16/12 are allowed.</td>
+ * By default, 10/8, 192.168/16, 169.254/16, 127/8, 172.16/12, and 0:0:0:0:0:0:0:1 are allowed.</td>
  * </tr>
  * <tr>
  * <td>proxiesHeader</td>
@@ -652,10 +655,9 @@ public class RemoteIpFilter extends GenericFilter {
 
     protected static final String INTERNAL_PROXIES_PARAMETER = "internalProxies";
 
-    /**
-     * Logger
-     */
-    private static final Log log = LogFactory.getLog(RemoteIpFilter.class);
+    // Log must be non-static as loggers are created per class-loader and this
+    // Filter may be used in multiple class loaders
+    private transient Log log = LogFactory.getLog(RemoteIpFilter.class);
 
     protected static final String PROTOCOL_HEADER_PARAMETER = "protocolHeader";
 
@@ -725,7 +727,8 @@ public class RemoteIpFilter extends GenericFilter {
             "127\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|" +
             "172\\.1[6-9]{1}\\.\\d{1,3}\\.\\d{1,3}|" +
             "172\\.2[0-9]{1}\\.\\d{1,3}\\.\\d{1,3}|" +
-            "172\\.3[0-1]{1}\\.\\d{1,3}\\.\\d{1,3}");
+            "172\\.3[0-1]{1}\\.\\d{1,3}\\.\\d{1,3}|" +
+            "0:0:0:0:0:0:0:1|::1");
 
     /**
      * @see #setProtocolHeader(String)
@@ -760,8 +763,11 @@ public class RemoteIpFilter extends GenericFilter {
 
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-        if (internalProxies != null &&
-                internalProxies.matcher(request.getRemoteAddr()).matches()) {
+        boolean isInternal = internalProxies != null &&
+                internalProxies.matcher(request.getRemoteAddr()).matches();
+
+        if (isInternal || (trustedProxies != null &&
+                trustedProxies.matcher(request.getRemoteAddr()).matches())) {
             String remoteIp = null;
             // In java 6, proxiesHeaderValue should be declared as a java.util.Deque
             LinkedList<String> proxiesHeaderValue = new LinkedList<>();
@@ -777,11 +783,14 @@ public class RemoteIpFilter extends GenericFilter {
 
             String[] remoteIpHeaderValue = commaDelimitedListToStringArray(concatRemoteIpHeaderValue.toString());
             int idx;
+            if (!isInternal) {
+                proxiesHeaderValue.addFirst(request.getRemoteAddr());
+            }
             // loop on remoteIpHeaderValue to find the first trusted remote ip and to build the proxies chain
             for (idx = remoteIpHeaderValue.length - 1; idx >= 0; idx--) {
                 String currentRemoteIp = remoteIpHeaderValue[idx];
                 remoteIp = currentRemoteIp;
-                if (internalProxies.matcher(currentRemoteIp).matches()) {
+                if (internalProxies !=null && internalProxies.matcher(currentRemoteIp).matches()) {
                     // do nothing, internalProxies IPs are not appended to the
                 } else if (trustedProxies != null &&
                         trustedProxies.matcher(currentRemoteIp).matches()) {
@@ -1042,7 +1051,7 @@ public class RemoteIpFilter extends GenericFilter {
      * Regular expression that defines the internal proxies.
      * </p>
      * <p>
-     * Default value : 10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|169\.254.\d{1,3}.\d{1,3}|127\.\d{1,3}\.\d{1,3}\.\d{1,3}
+     * Default value : 10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|169\.254.\d{1,3}.\d{1,3}|127\.\d{1,3}\.\d{1,3}\.\d{1,3}|0:0:0:0:0:0:0:1
      * </p>
      * @param internalProxies The regexp
      */
@@ -1172,5 +1181,16 @@ public class RemoteIpFilter extends GenericFilter {
         } else {
             this.trustedProxies = Pattern.compile(trustedProxies);
         }
+    }
+
+
+    /*
+     * Log objects are not Serializable but this Filter is because it extends
+     * GenericFilter. Tomcat won't serialize a Filter but in case something else
+     * does...
+     */
+    private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+        ois.defaultReadObject();
+        log = LogFactory.getLog(RemoteIpFilter.class);
     }
 }

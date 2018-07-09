@@ -56,8 +56,6 @@ import org.apache.tomcat.InstanceManager;
  */
 public class JspRuntimeLibrary {
 
-    private static final Log log = LogFactory.getLog(JspRuntimeLibrary.class);
-
     /**
      * Returns the value of the javax.servlet.error.exception request
      * attribute value, if present, otherwise the value of the
@@ -694,39 +692,26 @@ public class JspRuntimeLibrary {
         Method method = null;
         Class<?> type = null;
         try {
-            java.beans.BeanInfo info
-                = java.beans.Introspector.getBeanInfo(beanClass);
-            if ( info != null ) {
-                java.beans.PropertyDescriptor pd[]
-                    = info.getPropertyDescriptors();
-                for (int i = 0 ; i < pd.length ; i++) {
-                    if ( pd[i].getName().equals(prop) ) {
-                        method = pd[i].getWriteMethod();
-                        type   = pd[i].getPropertyType();
-                        break;
-                    }
+            java.beans.BeanInfo info = java.beans.Introspector.getBeanInfo(beanClass);
+            java.beans.PropertyDescriptor pd[] = info.getPropertyDescriptors();
+            for (int i = 0 ; i < pd.length ; i++) {
+                if ( pd[i].getName().equals(prop) ) {
+                    method = pd[i].getWriteMethod();
+                    type = pd[i].getPropertyType();
+                    break;
                 }
-            } else {
-                // just in case introspection silently fails.
-                throw new JasperException(
-                    Localizer.getMessage("jsp.error.beans.nobeaninfo",
-                                         beanClass.getName()));
             }
         } catch (Exception ex) {
             throw new JasperException (ex);
         }
         if (method == null) {
             if (type == null) {
-                throw new JasperException(
-                        Localizer.getMessage("jsp.error.beans.noproperty",
-                                             prop,
-                                             beanClass.getName()));
+                throw new JasperException(Localizer.getMessage(
+                        "jsp.error.beans.noproperty", prop, beanClass.getName()));
             } else {
-                throw new JasperException(
-                    Localizer.getMessage("jsp.error.beans.nomethod.setproperty",
-                                         prop,
-                                         type.getName(),
-                                         beanClass.getName()));
+                throw new JasperException(Localizer.getMessage(
+                        "jsp.error.beans.nomethod.setproperty",
+                        prop, type.getName(), beanClass.getName()));
             }
         }
         return method;
@@ -738,36 +723,25 @@ public class JspRuntimeLibrary {
         Method method = null;
         Class<?> type = null;
         try {
-            java.beans.BeanInfo info
-                = java.beans.Introspector.getBeanInfo(beanClass);
-            if ( info != null ) {
-                java.beans.PropertyDescriptor pd[]
-                    = info.getPropertyDescriptors();
-                for (int i = 0 ; i < pd.length ; i++) {
-                    if ( pd[i].getName().equals(prop) ) {
-                        method = pd[i].getReadMethod();
-                        type   = pd[i].getPropertyType();
-                        break;
-                    }
+            java.beans.BeanInfo info = java.beans.Introspector.getBeanInfo(beanClass);
+            java.beans.PropertyDescriptor pd[] = info.getPropertyDescriptors();
+            for (int i = 0 ; i < pd.length ; i++) {
+                if (pd[i].getName().equals(prop)) {
+                    method = pd[i].getReadMethod();
+                    type = pd[i].getPropertyType();
+                    break;
                 }
-            } else {
-                // just in case introspection silently fails.
-                throw new JasperException(
-                    Localizer.getMessage("jsp.error.beans.nobeaninfo",
-                                         beanClass.getName()));
             }
         } catch (Exception ex) {
             throw new JasperException (ex);
         }
         if (method == null) {
             if (type == null) {
-                throw new JasperException(
-                    Localizer.getMessage("jsp.error.beans.noproperty", prop,
-                                         beanClass.getName()));
+                throw new JasperException(Localizer.getMessage(
+                        "jsp.error.beans.noproperty", prop, beanClass.getName()));
             } else {
-                throw new JasperException(
-                    Localizer.getMessage("jsp.error.beans.nomethod", prop,
-                                         beanClass.getName()));
+                throw new JasperException(Localizer.getMessage(
+                        "jsp.error.beans.nomethod", prop, beanClass.getName()));
             }
         }
 
@@ -993,6 +967,7 @@ public class JspRuntimeLibrary {
             tag.release();
         } catch (Throwable t) {
             ExceptionUtils.handleThrowable(t);
+            Log log = LogFactory.getLog(JspRuntimeLibrary.class);
             log.warn("Error processing release on tag instance of "
                     + tag.getClass().getName(), t);
         }
@@ -1001,6 +976,7 @@ public class JspRuntimeLibrary {
         } catch (Exception e) {
             Throwable t = ExceptionUtils.unwrapInvocationTargetException(e);
             ExceptionUtils.handleThrowable(t);
+            Log log = LogFactory.getLog(JspRuntimeLibrary.class);
             log.warn("Error processing preDestroy on tag instance of "
                     + tag.getClass().getName(), t);
         }
