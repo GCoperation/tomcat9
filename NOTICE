@@ -1,34 +1,25 @@
 Apache Tomcat
 Copyright 1999-2018 The Apache Software Foundation
 
-This product includes software developed at
-The Apache Software Foundation (http://www.apache.org/).
+本产品包括Apache软件基金会(http://www.apache.org/)开发的软件。
 
-This software contains code derived from netty-native
-developed by the Netty project
-(http://netty.io, https://github.com/netty/netty-tcnative/)
-and from finagle-native developed at Twitter
-(https://github.com/twitter/finagle).
+该软件包含源自Netty项目开发的netty-native (http://netty.io, https://github.com/netty/netty-tcnative/) 
+和Twitter开发的finagle-native (https://github.com/twitter/finagle) 的代码
 
-The Windows Installer is built with the Nullsoft
-Scriptable Install System (NSIS), which is
-open source software.  The original software and
-related information is available at
-http://nsis.sourceforge.net.
+Windows Installer使用Nullsoft Scriptable Install System(NSIS)构建，该系统(NSIS)是开源软件。 
+原版软件和相关信息可在 http://nsis.sourceforge.net 上获得。
 
-Java compilation software for JSP pages is provided by the Eclipse
-JDT Core Batch Compiler component, which is open source software.
-The original software and related information is available at
-http://www.eclipse.org/jdt/core/.
+JSP页面的Java编译软件由 Eclipse JDT Core Batch Compiler 组件提供，
+该组件是开源软件。 原版软件和相关信息可在以下网站获得
+http://www.eclipse.org/jdt/core/。
 
-For portions of the Tomcat JNI OpenSSL API and the OpenSSL JSSE integration
-The org.apache.tomcat.jni and the org.apache.tomcat.net.openssl packages
-are derivative work originating from the Netty project and the finagle-native
-project developed at Twitter
+对于部分Tomcat JNI OpenSSL API和OpenSSL JSSE集成的
+org.apache.tomcat.jni和org.apache.tomcat.net.openssl包
+是源自Netty项目的衍生项目，以及Twitter开发的finagle-native项目
 * Copyright 2014 The Netty Project
 * Copyright 2014 Twitter
 
-The original XML Schemas for Java EE Deployment Descriptors:
+Java EE部署描述符的原始XML模式：
  - javaee_5.xsd
  - javaee_web_services_1_2.xsd
  - javaee_web_services_client_1_2.xsd
@@ -51,5 +42,5 @@ The original XML Schemas for Java EE Deployment Descriptors:
  - web-common_4_0.xsd
  - web-fragment_4_0.xsd
 
-may be obtained from:
+可以从以下获得：
 http://www.oracle.com/webfolder/technetwork/jsc/xml/ns/javaee/index.html

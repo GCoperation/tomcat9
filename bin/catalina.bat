@@ -15,15 +15,15 @@ rem See the License for the specific language governing permissions and
 rem limitations under the License.
 
 rem ---------------------------------------------------------------------------
-rem Start/Stop Script for the CATALINA Server
+rem CATALINA 服务的启动/停止脚本
 rem
-rem Environment Variable Prerequisites
+rem 环境变量的先决条件
 rem
-rem   Do not set the variables in this script. Instead put them into a script
-rem   setenv.bat in CATALINA_BASE/bin to keep your customizations separate.
+rem   不要在此脚本中设置变量。 而是将它们放入 CATALINA_BASE/bin/setenv.bat 的脚本中，以使您的自定义分开。
 rem
-rem   WHEN RUNNING TOMCAT AS A WINDOWS SERVICE:
-rem   Note that the environment variables that affect the behavior of this
+rem   当作为WINDOWS服务运行TOMCAT时：
+rem   请留意， 影响此脚本行为的环境变量对Windows服务完全没有影响。 
+rem   that the environment variables that affect the behavior of this
 rem   script will have no effect at all on Windows Services. As such, any
 rem   local customizations made in a CATALINA_BASE/bin/setenv.bat script
 rem   will also have no effect on Tomcat when launched as a Windows Service.
@@ -353,7 +353,7 @@ shift
 goto setArgs
 :doneSetArgs
 
-rem Execute Java with the applicable properties
+rem 使用合适的属性执行java
 if not "%JPDA%" == "" goto doJpda
 if not "%SECURITY_POLICY_FILE%" == "" goto doSecurity
 %_EXECJAVA% %LOGGING_CONFIG% %LOGGING_MANAGER% %JAVA_OPTS% %CATALINA_OPTS% %DEBUG_OPTS% -D%ENDORSED_PROP%="%JAVA_ENDORSED_DIRS%" -classpath "%CLASSPATH%" -Dcatalina.base="%CATALINA_BASE%" -Dcatalina.home="%CATALINA_HOME%" -Djava.io.tmpdir="%CATALINA_TMPDIR%" %MAINCLASS% %CMD_LINE_ARGS% %ACTION%

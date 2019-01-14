@@ -16,218 +16,180 @@
 ================================================================================
 
             ===================================================
-            Running The Apache Tomcat @VERSION_MAJOR_MINOR@ Servlet/JSP Container
+            运行Apache Tomcat @VERSION_MAJOR_MINOR@ Servlet/JSP容器
             ===================================================
 
 Apache Tomcat @VERSION_MAJOR_MINOR@ requires a Java Standard Edition Runtime
 Environment (JRE) version 8 or later.
 
 =============================
-Running With JRE 8 Or Later
+运行在JRE8或者更新版本的JRE
 =============================
 
-(1) Download and Install a Java SE Runtime Environment (JRE)
+(1) 下载和安装Java运行环境 (JRE)
 
-(1.1) Download a Java SE Runtime Environment (JRE),
-      release version 8 or later, from
-      http://www.oracle.com/technetwork/java/javase/downloads/index.html
+(1.1) 从 http://www.oracle.com/technetwork/java/javase/downloads/index.html 
+下载一个 Java运行环境(JRE) 第8版或者更新版本的JRE。
 
-(1.2) Install the JRE according to the instructions included with the
-      release.
+(1.2) 根据发行版中包含的说明安装JRE。
 
-      You may also use a full Java Development Kit (JDK) rather than just
-      a JRE.
+      您也可以使用完整的Java Development Kit（JDK）而不仅仅是JRE。
 
+(2) 下载并安装Apache Tomcat
 
-(2) Download and Install Apache Tomcat
-
-(2.1) Download a binary distribution of Tomcat from:
-
+(2.1) 从以下位置下载Tomcat的二进制发行版：
       http://tomcat.apache.org/
 
-(2.2) Unpack the binary distribution so that it resides in its own
-      directory (conventionally named "apache-tomcat-[version]").
+(2.2) 解压缩二进制发行版，存放到在软件自身的目录中 （通常命名为“apache-tomcat-[version]”）。
 
-      For the purposes of the remainder of this document, the name
-      "CATALINA_HOME" is used to refer to the full pathname of that
-      directory.
+      出于本文档其余部分的目的，名称“CATALINA_HOME”用于指代该目录的完整路径名。
 
-NOTE:  As an alternative to downloading a binary distribution, you can
-create your own from the Tomcat source code, as described in
-"BUILDING.txt".  You can either
+注意：作为下载二进制发行版的替代方法，您可以使用Tomcat源码创建自己的发行版，如“BUILDING.txt”中所述。 
+你也可以
 
-  a)  Do the full "release" build and find the created distribution in the
-      "output/release" directory and then proceed with unpacking as above, or
+  a)  执行完整的“release”构建并在“output/release”目录中查找创建的发行版，然后按上述方法继续解压缩，或者
 
-  b)  Do a simple build and use the "output/build" directory as
-      "CATALINA_HOME".  Be warned that there are some differences between the
-      contents of the "output/build" directory and a full "release"
-      distribution.
+  b)  做一个简单的构建并使用“output/build”目录作为“CATALINA_HOME”。 
+    请注意，“output/build”目录的内容与完整的“release”发行版之间存在一些差异。
 
 
-(3) Configure Environment Variables
+(3) 配置环境变量
 
-Tomcat is a Java application and does not use environment variables directly.
-Environment variables are used by the Tomcat startup scripts. The scripts use
-the environment variables to prepare the command that starts Tomcat.
+Tomcat是一个Java应用程序，不直接使用环境变量。
+环境变量由Tomcat启动脚本使用。 脚本使用环境变量来准备启动Tomcat的命令。
 
-(3.1) Set CATALINA_HOME (required) and CATALINA_BASE (optional)
+(3.1) 设置CATALINA_HOME（必需）和CATALINA_BASE（可选）
 
-The CATALINA_HOME environment variable should be set to the location of the
-root directory of the "binary" distribution of Tomcat.
+应将CATALINA_HOME环境变量设置为Tomcat的“二进制”发行版的根目录的位置。
 
-The Tomcat startup scripts have some logic to set this variable
-automatically if it is absent, based on the location of the startup script
-in *nix and on the current directory in Windows. That logic might not work
-in all circumstances, so setting the variable explicitly is recommended.
+根据 *nix中启动脚本的位置和Windows中的当前目录，
+Tomcat启动脚本有一些逻辑可以自动设置此变量（如果不存在）。 
+该逻辑可能不适用于所有情况，因此建议明确设置变量。
 
-The CATALINA_BASE environment variable specifies location of the root
-directory of the "active configuration" of Tomcat. It is optional. It
-defaults to be equal to CATALINA_HOME.
+CATALINA_BASE环境变量指定Tomcat的“活动配置(active configuration)”的根目录的位置。这是可选的。 
+它默认等于CATALINA_HOME。
 
-Using distinct values for the CATALINA_HOME and CATALINA_BASE variables is
-recommended to simplify further upgrades and maintenance. It is documented
-in the "Multiple Tomcat Instances" section below.
+建议使用CATALINA_HOME和CATALINA_BASE变量的不同值来简化进一步的升级和维护。 
+它记录在下面的“多个Tomcat实例”部分中。
 
 
-(3.2) Set JRE_HOME or JAVA_HOME (required)
+(3.2) 设置JRE_HOME或JAVA_HOME（必需）
 
-These variables are used to specify location of a Java Runtime
-Environment or of a Java Development Kit that is used to start Tomcat.
+这些变量用于指定启动Tomcat的Java Runtime Environment的位置或Java Development Kit的位置。
 
-The JRE_HOME variable is used to specify location of a JRE. The JAVA_HOME
-variable is used to specify location of a JDK.
+JRE_HOME变量用于指定JRE的位置。 JAVA_HOME变量用于指定JDK的位置。
 
-Using JAVA_HOME provides access to certain additional startup options that
-are not allowed when JRE_HOME is used.
+使用JAVA_HOME提供了对某些额外启动选项的接口，这些选项在使用JRE_HOME时是不允许的。
 
-If both JRE_HOME and JAVA_HOME are specified, JRE_HOME is used.
+如果同时指定了JRE_HOME和JAVA_HOME，则使用JRE_HOME。
 
-The recommended place to specify these variables is a "setenv" script. See
-below.
+指定这些变量位置的推荐做法是使用“setenv”脚本。 见下文。
 
 
-(3.3) Other variables (optional)
+(3.3) 其他变量（可选）
 
-Other environment variables exist, besides the four described above.
-See the comments at the top of catalina.bat or catalina.sh scripts for
-the list and a description of each of them.
+除了上述四个之外，还存在其他环境变量。
+请参阅catalina.bat或catalina.sh脚本顶部的注释、获取列表上的每个注释及其说明。
 
-One frequently used variable is CATALINA_OPTS. It allows specification of
-additional options for the java command that starts Tomcat.
+一个经常使用的变量是CATALINA_OPTS。 它允许为启动Tomcat的java命令指定额外选项。
 
-See the Java documentation for the options that affect the Java Runtime
-Environment.
+有关影响Java运行时环境的选项，请参阅Java文档。
 
-See the "System Properties" page in the Tomcat Configuration Reference for
-the system properties that are specific to Tomcat.
+有关Tomcat特定的系统属性，请参阅“Tomcat配置参考”中的“系统属性”页面。
 
-A similar variable is JAVA_OPTS. It is used less frequently. It allows
-specification of options that are used both to start and to stop Tomcat as well
-as for other commands.
+类似的变量是JAVA_OPTS。 使用频率较低。 它允许指定用于启动和停止Tomcat以及其他命令的选项。
 
-Note: Do not use JAVA_OPTS to specify memory limits. You do not need much
-memory for a small process that is used to stop Tomcat. Those settings
-belong to CATALINA_OPTS.
+注意：请勿使用JAVA_OPTS指定内存限制。 对于用于停止Tomcat的小进程，您不需要太多内存。 
+这些设置属于CATALINA_OPTS。
 
-Another frequently used variable is CATALINA_PID (on *nix only). It
-specifies the location of the file where process id of the forked Tomcat
-java process will be written. This setting is optional. It will enable the
-following features:
+另一个经常使用的变量是CATALINA_PID（仅限 *nix）。 
+它指定pid文件的位置，其中将写入fork的Tomcat的java的进程ID。 此设置是可选的。 它将启用以下功能：
 
- *  better protection against duplicate start attempts and
- *  allows forceful termination of Tomcat process when it does not react to
-    the standard shutdown command.
+ *  对重复的启动尝试进行更好的保护
+ *  当没有对标准shutdown命令的响应时，允许强制终止Tomcat进程。
 
+(3.4) 使用“setenv”脚本（可选，推荐）
 
-(3.4) Using the "setenv" script (optional, recommended)
+除了CATALINA_HOME和CATALINA_BASE之外，
+所有环境变量都可以在“setenv”脚本中指定。
+ 该脚本放在CATALINA_BASE/bin或CATALINA_HOME/bin目录中，
+ 并命名为setenv.bat（在Windows上）或setenv.sh（在*nix上）。 
+ 该文件必须是可读的。
 
-Apart from CATALINA_HOME and CATALINA_BASE, all environment variables can
-be specified in the "setenv" script. The script is placed either into
-CATALINA_BASE/bin or into CATALINA_HOME/bin directory and is named
-setenv.bat (on Windows) or setenv.sh (on *nix). The file has to be
-readable.
+默认情况下，setenv脚本文件不存在。 
+如果CATALINA_BASE和CATALINA_HOME中都存在脚本文件，则首选CATALINA_BASE中的脚本文件。
 
-By default the setenv script file is absent. If the script file is present
-both in CATALINA_BASE and in CATALINA_HOME, the one in CATALINA_BASE is
-preferred.
+例如，要配置JRE_HOME和CATALINA_PID变量，可以创建以下脚本文件：
 
-For example, to configure the JRE_HOME and CATALINA_PID variables you can
-create the following script file:
-
-On Windows, %CATALINA_BASE%\bin\setenv.bat:
+在Windows上, %CATALINA_BASE%\bin\setenv.bat:
 
   set "JRE_HOME=%ProgramFiles%\Java\jre8"
   exit /b 0
 
-On *nix, $CATALINA_BASE/bin/setenv.sh:
+在*nix上, $CATALINA_BASE/bin/setenv.sh:
 
   JRE_HOME=/usr/java/latest
   CATALINA_PID="$CATALINA_BASE/tomcat.pid"
 
 
-The CATALINA_HOME and CATALINA_BASE variables cannot be configured in the
-setenv script, because they are used to locate that file.
+无法在setenv脚本中配置CATALINA_HOME和CATALINA_BASE变量，
+因为它们用于查找该文件（注：指setenv.sh文件或者setenv.bat文件）。
 
-All the environment variables described here and the "setenv" script are
-used only if you use the standard scripts to launch Tomcat. For example, if
-you have installed Tomcat as a service on Windows, the service wrapper
-launches Java directly and does not use the script files.
+只有在使用标准脚本启动Tomcat时，才会使用此处描述的所有环境变量和“setenv”脚本。
+例如，如果您已在Windows上将Tomcat安装为服务，则服务包装器将直接启动Java，而不使用脚本文件。
 
 
-(4) Start Up Tomcat
+(4) 启动 Tomcat
 
-(4.1) Tomcat can be started by executing one of the following commands:
+(4.1) 可以通过执行以下命令之一来启动Tomcat：
 
-  On Windows:
+  在 Windows上:
 
       %CATALINA_HOME%\bin\startup.bat
 
-    or
+    或者
 
       %CATALINA_HOME%\bin\catalina.bat start
 
-  On *nix:
+  在 *nix上:
 
       $CATALINA_HOME/bin/startup.sh
 
-    or
+    或者
 
       $CATALINA_HOME/bin/catalina.sh start
 
-(4.2) After startup, the default web applications included with Tomcat will be
-      available by visiting:
+(4.2) 启动后，Tomcat附带的默认Web应用程序将通过访问：
 
       http://localhost:8080/
 
-(4.3) Further information about configuring and running Tomcat can be found in
-      the documentation included here, as well as on the Tomcat web site:
+(4.3) 有关配置和运行Tomcat的更多信息，请参见此处包含的文档以及Tomcat网站：
 
       http://tomcat.apache.org/
 
 
-(5) Shut Down Tomcat
+(5) 关闭 Tomcat
 
-(5.1) Tomcat can be shut down by executing one of the following commands:
+(5.1) 可以通过执行以下命令之一来关闭Tomcat：
 
-  On Windows:
+  在 Windows上:
 
       %CATALINA_HOME%\bin\shutdown.bat
 
-    or
+    或者
 
       %CATALINA_HOME%\bin\catalina.bat stop
 
-  On *nix:
+  在 *nix上:
 
       $CATALINA_HOME/bin/shutdown.sh
 
-    or
+    或者
 
       $CATALINA_HOME/bin/catalina.sh stop
 
 ==================================================
-Advanced Configuration - Multiple Tomcat Instances
+            高级配置 - 多个Tomcat实例
 ==================================================
 
 In many circumstances, it is desirable to have a single copy of a Tomcat

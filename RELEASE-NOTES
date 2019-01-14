@@ -17,157 +17,134 @@
 
 
                      Apache Tomcat Version @VERSION@
-                            Release Notes
+                            发 行 说 明
 
 
 =========
-CONTENTS:
+   内容：
 =========
 
-* Dependency Changes
-* API Stability
-* Bundled APIs
-* Web application reloading and static fields in shared libraries
-* Security manager URLs
-* Symlinking static resources
-* Viewing the Tomcat Change Log
-* Cryptographic software notice
-* When all else fails
+* 依赖变化
+* API稳定性
+* 绑定的API
+* Web应用程序的重新加载和共享库中的静态区域
+* 安全管理的URL
+* 连接外部静态资源
+* 查看Tomcat更新日志
+* 加密软件说明
+* 无法解答你的问题
 
 
 ===================
-Dependency Changes:
+      依赖变化：
 ===================
-Tomcat @VERSION_MAJOR_MINOR@ is designed to run on Java SE 8 and later.
+Tomcat @VERSION_MAJOR_MINOR@ 被设计成在Java SE 8及更高版本上运行。
 
 
 ==============
-API Stability:
+  API稳定性：
 ==============
 
-The public interfaces for the following classes are fixed and will not be
-changed at all during the remaining lifetime of the @VERSION_MAJOR@.x series:
-- All classes in the javax namespace
+以下类的公共接口是固定的，在 @VERSION_MAJOR@.x 系列的剩余生命周期内根本不会更改：
+- javax命名空间中的所有类
 
-The public interfaces for the following classes may be added to in order to
-resolve bugs and/or add new features. No existing interface method will be
-removed or changed although it may be deprecated.
-- org.apache.catalina.* (excluding sub-packages)
+可以添加以下类的公共接口以便解决错误 和/或 添加新功能。  
+尽管可能已弃用，但不会删除或更改现有的接口方法。
+- org.apache.catalina.* (不包括子包)
 
-Note: As Tomcat @VERSION_MAJOR@ matures, the above list will be added to. The list is not
-      considered complete at this time.
+注意：随着Tomcat @VERSION_MAJOR@ 的发展，上面的列表将被添加到。 目前该列表尚未完成。
 
-The remaining classes are considered part of the Tomcat internals and may change
-without notice between point releases.
+其余的类都被视为Tomcat的内部的一部分，并可能更改，恕不在版本之间另行点明通知。  
 
 
 =============
-Bundled APIs:
+  绑定的API：
 =============
-A standard installation of Tomcat @VERSION_MAJOR_MINOR@ makes all of the following APIs available
-for use by web applications (by placing them in "lib"):
-* annotations-api.jar (Annotations package)
-* catalina.jar (Tomcat Catalina implementation)
-* catalina-ant.jar (Tomcat Catalina Ant tasks)
-* catalina-ha.jar (High availability package)
-* catalina-storeconfig.jar (Generation of XML configuration from current state)
-* catalina-tribes.jar (Group communication)
-* ecj-@JDT_VERSION@.jar (Eclipse JDT Java compiler)
+Tomcat @VERSION_MAJOR_MINOR@ 的标准安装使以下API都可供Web应用程序使用（通常将它们放在“lib”中）：
+* annotations-api.jar (注释 包)
+* catalina.jar (Tomcat Calalina的实现)
+* catalina-ant.jar (Tomcat Catalina Ant任务)
+* catalina-ha.jar (高可用 包)
+* catalina-storeconfig.jar (从当前状态生成XML配置)
+* catalina-tribes.jar (群组通信)
+* ecj-@JDT_VERSION@.jar (Eclipse JDT Java编译器)
 * el-api.jar (EL 3.0 API)
-* jasper.jar (Jasper 2 Compiler and Runtime)
-* jasper-el.jar (Jasper 2 EL implementation)
+* jasper.jar (Jasper 2编译器和运行环境)
+* jasper-el.jar (Jasper 2 EL 实现)
 * jsp-api.jar (JSP 2.3 API)
 * servlet-api.jar (Servlet 4.0 API)
-* tomcat-api.jar (Interfaces shared by Catalina and Jasper)
-* tomcat-coyote.jar (Tomcat connectors and utility classes)
-* tomcat-dbcp.jar (package renamed database connection pool based on Commons DBCP)
-* tomcat-jdbc.jar (Tomcat's database connection pooling solution)
-* tomcat-jni.jar (Interface to the native component of the APR/native connector)
-* tomcat-util.jar (Various utilities)
-* tomcat-websocket.jar (WebSocket 1.1 implementation)
+* tomcat-api.jar (Catalina和Jasper共享的接口)
+* tomcat-coyote.jar (Tomcat连接器和工具类)
+* tomcat-dbcp.jar (基于公共的 DBCP 重命名的数据库连接池的包)
+* tomcat-jdbc.jar (Tomcat的数据库连接池解决方案)
+* tomcat-jni.jar (与 APR/本地连接器 的本机组件的接口)
+* tomcat-util.jar (各种工具)
+* tomcat-websocket.jar (WebSocket 1.1 实现)
 * websocket-api.jar (WebSocket 1.1 API)
 
-You can make additional APIs available to all of your web applications by
-putting unpacked classes into a "classes" directory (not created by default),
-or by placing them in JAR files in the "lib" directory.
+您可以通过将解压缩的类放入 "class" 目录（默认情况下不创建）
+或将它们打包成JAR文件放在"lib"目录中，为所有Web应用程序提供额外的API。
 
-To override the XML parser implementation or interfaces, use the appropriate
-feature for your JVM. For Java <= 8 use the endorsed standards override
-feature. The default configuration defines JARs located in "endorsed" as endorsed.
-For Java 9+ use the upgradeable modules feature.
+若要重写XML解析器的实现或接口，请考虑使用JVM适当的特性。
+Java <= 8使用认可的标准重写功能。默认配置确定将位于“endorsed”中的JAR已签名。
+对于Java 9+，请使用可升级模块功能。
 
 
 ================================================================
-Web application reloading and static fields in shared libraries:
+            Web应用程序的重新加载和共享库中的静态区域：
 ================================================================
-Some shared libraries (many are part of the JDK) keep references to objects
-instantiated by the web application. To avoid class loading related problems
-(ClassCastExceptions, messages indicating that the classloader
-is stopped, etc.), the shared libraries state should be reinitialized.
+一些共享库（许多是JDK的一部分）允许由Web应用程序实例化的对象的引用。
+为避免类加载相关问题（ClassCastExceptions，指示类加载器已停止的消息等），
+应重新初始化共享库状态。
 
-Something which might help is to avoid putting classes which would be
-referenced by a shared static field in the web application classloader,
-and putting them in the shared classloader instead (JARs should be put in the
-"lib" folder, and classes should be put in the "classes" folder).
+可能有所帮助的是避免放置由Web应用程序类加载器中的共享静态字段引用的类，
+并将它们放入共享类加载器中（JAR应该放在“lib”文件夹中，并且应该放入类 “classes”文件夹）。
 
 
 ======================
-Security manager URLs:
+    安全管理的URL：
 ======================
-In order to grant security permissions to JARs located inside the
-web application repository, use URLs of of the following format
-in your policy file:
+为了授予位于Web应用程序库内的JAR的安全权限，请在策略文件中使用以下格式的URL：
 
 file:${catalina.base}/webapps/examples/WEB-INF/lib/driver.jar
 
 
 ============================
-Symlinking static resources:
+    连接外部静态资源：
 ============================
-By default, Unix symlinks will not work when used in a web application to link
-resources located outside the web application root directory.
+默认情况下，在Web应用程序中用于链接Web应用程序根目录外部的资源时，Unix符号链接将不起作用。
 
-This behavior is optional, and the "allowLinking" flag may be used to disable
-the check.
+此行为是可选的，“allowLinking”标志可用于禁用检查。
 
 
 ==============================
-Viewing the Tomcat Change Log:
+      查看Tomcat更改日志：
 ==============================
-The full change log is available from http://tomcat.apache.org and is also
-included in the documentation web application.
+完整更改日志可从 http://tomcat.apache.org 获得，也包含在文档(documentation) Web应用程序中。
 
 
 =============================
-Cryptographic software notice
+        加密软件说明
 =============================
-This distribution includes cryptographic software.  The country in
-which you currently reside may have restrictions on the import,
-possession, use, and/or re-export to another country, of
-encryption software.  BEFORE using any encryption software, please
-check your country's laws, regulations and policies concerning the
-import, possession, or use, and re-export of encryption software, to
-see if this is permitted.  See <http://www.wassenaar.org/> for more
-information.
+此发布包括加密软件。 
+您目前居住的国家（地区）可能对加密软件的进口，拥有，使用和/或再出口到另一个国家（地区）有限制。 
+在使用任何加密软件之前，
+请检查您所在国家（地区）有关加密软件的进口，拥有，使用和再出口的法律，法规和政策，
+以确定是否允许这样做。 
+有关更多信息，请参阅<http://www.wassenaar.org/>。
 
-The U.S. Government Department of Commerce, Bureau of Industry and
-Security (BIS), has classified this software as Export Commodity
-Control Number (ECCN) 5D002.C.1, which includes information security
-software using or performing cryptographic functions with asymmetric
-algorithms.  The form and manner of this Apache Software Foundation
-distribution makes it eligible for export under the License Exception
-ENC Technology Software Unrestricted (TSU) exception (see the BIS
-Export Administration Regulations, Section 740.13) for both object
-code and source code.
+美国政府商务部，工业和安全局（BIS）将该软件归类为出口商品管理编号（ECCN）5D002.C.1，
+其中包括使用或执行具有非对称算法的加密功能的信息安全软件。
+此Apache Software Foundation分发版的形式和方式使其有资格根据许可证例外ENC技术软件
+无限制（TSU）例外（参见BIS出口管理条例，第740.13节）导出目标代码和源代码。
 
-The following provides more details on the included cryptographic
-software:
-  - Tomcat includes code designed to work with JSSE
-  - Tomcat includes code designed to work with OpenSSL
+以下提供了有关包含的加密软件的更多详细信息：
+  - Tomcat包含了旨在与JSSE协同工作的代码
+  - Tomcat包含用于与OpenSSL协同工作的代码
 
 
 ====================
-When all else fails:
+  无法解答你的问题：
 ====================
-See the FAQ
+请参阅常见问题
 http://tomcat.apache.org/faq/

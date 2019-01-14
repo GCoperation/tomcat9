@@ -24,42 +24,37 @@ Apache Tomcat重用了许多其他Apache项目的代码。
 SVN
 ===
 
-For sources hosted in svn the approach is to svn copy the classes to the Tomcat
-source tree, modify them (always with a package rename, sometimes with
-additional changes) and then keep them in sync with the original via regular svn
-merges. This file keeps track of these copies to assist committers in keeping
-them up to date.
+对于在svn中托管的源，方法是将类复制到Tomcat源代码树，
+修改它们（总是使用包重命名，有时需要进行其他更改），然后通过定期svn常规合并使它们与原始代码保持同步。
+此文件会跟踪这些副本，以帮助提交者使其保持最新。
 
 BCEL
 ----
-org.apache.tomcat.util.bcel is copied from:
+org.apache.tomcat.util.bcel复制自：
 /commons/proper/bcel/trunk/src/main/java/org/apache/bcel
 
 Codec
 -----
-org.apache.tomcat.util.codec is copied from:
+org.apache.tomcat.util.codec 复制自:
 /commons/proper/codec/trunk/src/main/java/org/apache/commons/codec/
-Note: Only classes required for Base64 encoding/decoding. The rest are removed.
+注意：只有Base64编码/解码所需的类。 其余的都被删除了。
 
 
 GIT
 ===
 
-Updates from Git are applied manually via patch files. Patch files are generated
-using:
+Git的更新需要手动应用补丁文件。 补丁文件使用以下方式生成：
 git diff <last SHA1>:<sub-tree> HEAD:<sub-tree> > temp.patch
-The most recently merged SHA1 for the component below should be updated after
-the patch file has been applied and committed
+应用和提交补丁文件后，应更新下面组件的最近合并的SHA1
 
 FileUpload
 ----------
 Sub-tree:
 src/main/java/org/apache/commons/fileupload
-The SHA1 ID for the most recent commit to be merged to Tomcat is:
+要合并到Tomcat的最新提交的 SHA1 ID 是：
 6c00d575a9521c386743891fd34bc5181174cc01
 
-Note: Tomcat's copy of fileupload also includes classes copied manually (rather
-      than svn copied) from Commons IO.
+注意：Tomcat的fileupload副本还包括从Commons IO手动复制的类（而不是svn复制的）。
 
 DBCP
 ----
@@ -67,11 +62,11 @@ DBCP2
 Sub-tree
 /commons/proper/dbcp/trunk/src/main/java/org/apache/commons/dbcp2
 /commons/proper/dbcp/trunk/src/main/resources/org/apache/commons/dbcp2
-The SHA1 ID for the most recent commit to be merged to Tomcat is:
+要合并到Tomcat的最新提交的SHA1 ID是：
 8a71764a895b234bd1fc76553835ef4c974f22e1
 
 Pool2
 Sub-tree
 src/main/java/org/apache/commons/pool2
-The SHA1 ID for the most recent commit to be merged to Tomcat is:
+要合并到Tomcat的最新提交的SHA1 ID是：
 191a391166a8565718ef685531afa3fa44afd69c

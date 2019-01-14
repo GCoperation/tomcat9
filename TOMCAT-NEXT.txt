@@ -15,45 +15,37 @@
   limitations under the License.
 ================================================================================
 
-Notes of things to consider for the next major Tomcat release (9.0.x)
+有关下一个主要Tomcat版本（9.0.x）需要考虑的事项的注意事项
 
- 1. DONE.
-    Fix Java 8 Javadoc warnings.
+ 1. 完成
+    修复Java 8 Javadoc警告。
 
- 2. DONE.
-    Remove BIO AJP and HTTP connector.
+ 2. 完成
+    删除BIO AJP和HTTP连接器(connector)。
+ 3. 完成
+    删除Comet支持(support)。
 
- 3. DONE.
-    Remove Comet support.
+ 4. 完成
+    重构的连接器，以尽量减少代码重复。
+    - 每个连接器的代码所有具体实现 -> 端点(Endpoint)
+    - 每个连接的代码具体实现 -> SocketWrapper
 
- 4. DONE.
-    Refactor the connectors to minimise code duplication.
-    - All implementation specific per connector code -> Endpoint
-    - All implementation specific per connection code -> SocketWrapper
+ 5. 完成
+    对于JSSE SNI支持。
 
- 5. DONE
-    SNI support for JSSE.
+ 6. 了解我们想要使用的Java 8语言新特性。
 
- 6. See what Java 8 language features we want to use.
+ 7. 可能重构在Servlet API中公开属性的HTTP/2 API所需的连接器。
 
- 7. Connector refactoring required for HTTP/2 APIs that might be exposed in
-    the Servlet API.
+ 8. 密切关注其他Java EE 8 EG（到目前为止，除了Servlet EG之外没有任何消息的迹象）。
 
- 8. Keep an eye on the other Java EE 8 EGs (no sign of any movement apart
-    from the Servlet EG so far).
+ 9. 完成
+    重构 WebSocket I/O 直接转到Tomcat的内部，而不是通过Servlet API。
 
- 9. DONE
-    Refactor WebSocket I/O to go directly to Tomcat's internals rather than via
-    the Servlet API.
+10. 尽可能删除系统属性的使用以控制通用配置。
 
-10. Remove the use of system properties to control configuration wherever
-    possible.
+11. 减少setter和getter的实例为现有的物体和它的父上相同的属性。 这可能需要通过JMX暴露的新对象。
 
-11. Reduce instances of setters and getters for the same property existing on an
-    object and its parent. This may require new objects to be exposed via JMX.
+12. 考虑使用装饰包装SocketWrapper来检测/阻止组件保留引用的时间超过它们应该的时间。
 
-12. Consider wrapping the SocketWrapper with a facade to detect / prevent
-    components retaining references longer than they should.
-
-13. Asynchronous NIO2 styled alternate HTTP/2 implementation. Frame parsing logic
-    would be in completion handlers.
+13. 异步NIO2风格替换 HTTP/2 实现。框架分析逻辑将在处理程序中完成。

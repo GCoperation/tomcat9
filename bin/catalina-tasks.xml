@@ -16,13 +16,13 @@
   limitations under the License.
 -->
 <!--
-  XML file for importing Catalina ant tasks.
+  用于导入Catalina ant任务的XML文件。
   <import file="${catalina.home}/bin/catalina-tasks.xml"/>
 -->
 
 <project name="catalina-tasks">
   <description>Catalina Ant Manager, JMX and JSPC Tasks</description>
-  <!-- set catalina.home if it's not already set -->
+  <!-- 如果没有设置caraline.home则对此进行设置-->
   <dirname property="catalina.home.bin.dir" file="${ant.file.catalina-tasks}"/>
   <property name="catalina.home" value="${catalina.home.bin.dir}/.."/>
   <typedef resource="org/apache/catalina/ant/catalina.tasks">
